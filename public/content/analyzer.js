@@ -1504,11 +1504,98 @@
     }
   }
 
-  // Listen for analysis requests
+  let activeHighlightOverlay = null;
+
+  function removeHighlight() {
+    if (activeHighlightOverlay) {
+      activeHighlightOverlay.remove();
+      activeHighlightOverlay = null;
+    }
+    const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    elements.forEach(el => {
+      if (el.dataset.oldOutline !== undefined) {
+        el.style.outline = el.dataset.oldOutline;
+        delete el.dataset.oldOutline;
+      } else {
+        el.style.outline = '';
+      }
+      if (el.dataset.oldOutlineOffset !== undefined) {
+        el.style.outlineOffset = el.dataset.oldOutlineOffset;
+        delete el.dataset.oldOutlineOffset;
+      } else {
+        el.style.outlineOffset = '';
+      }
+      if (el.dataset.oldTransition !== undefined) {
+        el.style.transition = el.dataset.oldTransition;
+        delete el.dataset.oldTransition;
+      } else {
+        el.style.transition = '';
+      }
+    });
+  }
+
+  function highlightElement(index, scrollToElement) {
+    removeHighlight();
+    const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    const el = elements[index];
+    if (!el) return;
+
+    // Save original styles if not already saved
+    if (el.dataset.oldOutline === undefined) {
+      el.dataset.oldOutline = el.style.outline || '';
+    }
+    if (el.dataset.oldOutlineOffset === undefined) {
+      el.dataset.oldOutlineOffset = el.style.outlineOffset || '';
+    }
+    if (el.dataset.oldTransition === undefined) {
+      el.dataset.oldTransition = el.style.transition || '';
+    }
+
+    // Apply highlight styles
+    el.style.transition = 'outline 0.2s ease-in-out, outline-offset 0.2s ease-in-out';
+    el.style.outline = '3px solid #6366f1';
+    el.style.outlineOffset = '3px';
+
+    if (scrollToElement) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Position indicator badge above element
+    const rect = el.getBoundingClientRect();
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    const badge = document.createElement('div');
+    badge.textContent = el.tagName;
+    badge.style.position = 'absolute';
+    badge.style.top = `${Math.max(0, rect.top + scrollTop - 22)}px`;
+    badge.style.left = `${rect.left + scrollLeft}px`;
+    badge.style.backgroundColor = '#6366f1';
+    badge.style.color = '#ffffff';
+    badge.style.padding = '2px 6px';
+    badge.style.borderRadius = '4px';
+    badge.style.fontSize = '10px';
+    badge.style.fontFamily = 'sans-serif';
+    badge.style.fontWeight = 'bold';
+    badge.style.zIndex = '2147483647';
+    badge.style.pointerEvents = 'none';
+    badge.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+    
+    document.body.appendChild(badge);
+    activeHighlightOverlay = badge;
+  }
+
+  // Listen for analysis requests and highlight commands
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'RUN_ANALYSIS') {
       const result = runFullAnalysis();
       sendResponse(result);
+    } else if (message.type === 'HIGHLIGHT_HEADING') {
+      highlightElement(message.index, message.scroll);
+      sendResponse({ success: true });
+    } else if (message.type === 'CLEAR_HIGHLIGHT') {
+      removeHighlight();
+      sendResponse({ success: true });
     }
     return true;
   });

@@ -65,8 +65,34 @@ export default function SEOInspector() {
 }
 
 function OnPageTab({ seo }: { seo: PageAnalysis['seo'] }) {
+  const [selectedHeadingIndex, setSelectedHeadingIndex] = useState<number | null>(null);
+  const [showAllHeadings, setShowAllHeadings] = useState(false);
+  
   const titleStatus = !seo.title.value ? 'fail' : seo.title.length >= 30 && seo.title.length <= 60 ? 'pass' : 'warning';
   const descStatus = !seo.metaDescription.value ? 'fail' : seo.metaDescription.length >= 120 && seo.metaDescription.length <= 160 ? 'pass' : 'warning';
+  const isChromeExtension = typeof chrome !== 'undefined' && chrome.runtime?.id;
+
+  const highlightHeadingOnPage = (index: number | null, scroll = false) => {
+    if (!isChromeExtension) return;
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      if (activeTab?.id) {
+        if (index !== null) {
+          chrome.tabs.sendMessage(activeTab.id, { 
+            type: 'HIGHLIGHT_HEADING', 
+            index, 
+            scroll 
+          }).catch(() => {});
+        } else {
+          chrome.tabs.sendMessage(activeTab.id, { 
+            type: 'CLEAR_HIGHLIGHT' 
+          }).catch(() => {});
+        }
+      }
+    });
+  };
+
+  const displayedHeadings = showAllHeadings ? seo.headings : seo.headings.slice(0, 15);
 
   return (
     <div className="space-y-3">
@@ -140,12 +166,50 @@ function OnPageTab({ seo }: { seo: PageAnalysis['seo'] }) {
           />
         </div>
         <div className="mt-2 space-y-1">
-          {seo.headings.slice(0, 15).map((h: { tag: string; text: string; level: number }, i: number) => (
-            <div key={i} className="flex items-start gap-2 text-xs py-1" style={{ paddingLeft: `${(h.level - 1) * 12}px` }}>
-              <span className="badge badge-neutral flex-shrink-0 text-2xs">{h.tag.toUpperCase()}</span>
-              <span className="text-gray-600 break-all">{h.text.substring(0, 80)}</span>
-            </div>
-          ))}
+          {displayedHeadings.map((h: { tag: string; text: string; level: number }, i: number) => {
+            const isSelected = selectedHeadingIndex === i;
+            return (
+              <div 
+                key={i} 
+                className={`flex items-start gap-2 text-xs py-1.5 px-2 rounded cursor-pointer transition-all duration-150 group border-l-2
+                  ${isSelected 
+                    ? 'bg-indigo-50 border-indigo-500 font-medium text-indigo-950' 
+                    : 'hover:bg-gray-50 text-gray-600 hover:text-gray-900 border-transparent'
+                  }`}
+                style={{ marginLeft: `${(h.level - 1) * 12}px` }}
+                onClick={() => {
+                  const nextIndex = isSelected ? null : i;
+                  setSelectedHeadingIndex(nextIndex);
+                  highlightHeadingOnPage(nextIndex, true);
+                }}
+                onMouseEnter={() => {
+                  highlightHeadingOnPage(i, false);
+                }}
+                onMouseLeave={() => {
+                  highlightHeadingOnPage(isSelected ? i : selectedHeadingIndex, false);
+                }}
+              >
+                <span className={`badge flex-shrink-0 text-2xs transition-colors duration-150 py-0.5 px-1.5 h-4 min-h-0 font-semibold
+                  ${isSelected 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-neutral text-gray-500 group-hover:bg-gray-200'
+                  }`}
+                >
+                  {h.tag.toUpperCase()}
+                </span>
+                <span className="break-all leading-tight">{h.text}</span>
+              </div>
+            );
+          })}
+          
+          {seo.headings.length > 15 && (
+            <button
+              onClick={() => setShowAllHeadings(!showAllHeadings)}
+              className="text-xs text-indigo-600 hover:text-indigo-800 font-medium hover:underline mt-2 block w-full text-center py-1 bg-surface rounded border border-gray-100"
+            >
+              {showAllHeadings ? 'Show less' : `Show all ${seo.headings.length} headings`}
+            </button>
+          )}
         </div>
       </SectionCard>
     </div>
