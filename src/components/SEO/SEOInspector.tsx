@@ -65,6 +65,7 @@ export default function SEOInspector() {
 }
 
 function OnPageTab({ seo }: { seo: PageAnalysis['seo'] }) {
+  const { analysis } = useAnalysis();
   const [selectedHeadingIndex, setSelectedHeadingIndex] = useState<number | null>(null);
   const [showAllHeadings, setShowAllHeadings] = useState(false);
   
@@ -74,22 +75,36 @@ function OnPageTab({ seo }: { seo: PageAnalysis['seo'] }) {
 
   const highlightHeadingOnPage = (index: number | null, scroll = false) => {
     if (!isChromeExtension) return;
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const activeTab = tabs[0];
-      if (activeTab?.id) {
-        if (index !== null) {
-          chrome.tabs.sendMessage(activeTab.id, { 
-            type: 'HIGHLIGHT_HEADING', 
-            index, 
-            scroll 
-          }).catch(() => {});
-        } else {
-          chrome.tabs.sendMessage(activeTab.id, { 
-            type: 'CLEAR_HIGHLIGHT' 
-          }).catch(() => {});
-        }
+    
+    const sendToTab = (tabId: number) => {
+      if (index !== null) {
+        chrome.tabs.sendMessage(tabId, { 
+          type: 'HIGHLIGHT_HEADING', 
+          index, 
+          scroll 
+        }).catch((err) => {
+          console.error('[Refine SEO] Failed to send highlight message:', err);
+        });
+      } else {
+        chrome.tabs.sendMessage(tabId, { 
+          type: 'CLEAR_HIGHLIGHT' 
+        }).catch((err) => {
+          console.error('[Refine SEO] Failed to send clear message:', err);
+        });
       }
-    });
+    };
+
+    if (analysis?.tabId) {
+      sendToTab(analysis.tabId);
+    } else {
+      // Fallback query active tab in last focused window (fails with currentWindow: true in sidepanel iframe)
+      chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+        const activeTab = tabs[0];
+        if (activeTab?.id) {
+          sendToTab(activeTab.id);
+        }
+      });
+    }
   };
 
   const displayedHeadings = showAllHeadings ? seo.headings : seo.headings.slice(0, 15);
