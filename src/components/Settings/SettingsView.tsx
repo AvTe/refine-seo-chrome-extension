@@ -11,7 +11,7 @@ export default function SettingsView() {
     <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up">
       <div>
         <h1 className="text-lg font-bold text-gray-900">Settings</h1>
-        <p className="text-xs text-gray-400 mt-0.5">Configure RefineAI Inspector</p>
+        <p className="text-xs text-gray-400 mt-0.5">Configure Refine SEO Extension</p>
       </div>
 
       {/* General */}
@@ -77,7 +77,7 @@ export default function SettingsView() {
         <div className="flex gap-3">
           <Info size={16} className="text-primary-dark flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-gray-900">RefineAI Inspector</p>
+            <p className="text-sm font-medium text-gray-900">Refine SEO Extension</p>
             <p className="text-xs text-gray-500 mt-1">
               Website Intelligence for WordPress, WooCommerce & Modern Websites.
               Built with React, TypeScript, and Vite.

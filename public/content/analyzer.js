@@ -1,12 +1,12 @@
-// RefineAI Inspector — Content Script Analyzer
+// Refine SEO Extension — Content Script Analyzer
 // Extracts comprehensive website data from the DOM
 
 (function () {
   'use strict';
 
   // Prevent double-injection
-  if (window.__REFINEAI_INJECTED__) return;
-  window.__REFINEAI_INJECTED__ = true;
+  if (window.__REFINESEO_INJECTED__) return;
+  window.__REFINESEO_INJECTED__ = true;
 
   // Accumulated Web Vitals variables
   let clsValue = 0;
@@ -1032,7 +1032,7 @@
 
     // 2. Entity Coverage (20% weight) - Max 100
     let entityScore = 0;
-    const commonEntities = ['wordpress', 'woocommerce', 'shopify', 'google', 'openai', 'refineai', 'microsoft', 'apple', 'amazon', 'facebook', 'instagram', 'twitter', 'github', 'wikipedia'];
+    const commonEntities = ['wordpress', 'woocommerce', 'shopify', 'google', 'openai', 'refineseo', 'microsoft', 'apple', 'amazon', 'facebook', 'instagram', 'twitter', 'github', 'wikipedia'];
     const detectedEntitiesSet = new Set();
     
     // Simple scan
@@ -1398,7 +1398,7 @@
 
       return result;
     } catch (error) {
-      console.error('[RefineAI] Analysis error:', error);
+      console.error('[Refine SEO] Analysis error:', error);
       return { error: error.message };
     }
   }

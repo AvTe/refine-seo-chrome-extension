@@ -77,7 +77,7 @@ export default function Sidebar() {
             >
               <span className="text-primary-dark text-xs font-bold">R</span>
             </button>
-            {isSidebarOpen && <span className="text-sm font-semibold text-gray-900 truncate">RefineAI</span>}
+            {isSidebarOpen && <span className="text-sm font-semibold text-gray-900 truncate">Refine SEO</span>}
           </div>
           {isSidebarOpen && (
             <button

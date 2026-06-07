@@ -9,6 +9,7 @@ import {
   calculatePerformanceScore,
   calculateAccessibilityScore,
   formatBytes,
+  getAEOAnalysis,
 } from '@/utils/scoring';
 
 export default function ReportsView() {
@@ -60,17 +61,8 @@ export default function ReportsView() {
       const overallScore = calculateOverallScore(analysis);
 
       // AEO Score integration
-      const aeoDataFallback = analysis.aeo || {
-        aeoScore: 85,
-        answerReadiness: { score: 92, details: ['Found WooCommerce definition in paragraph.'] },
-        entityCoverage: { score: 88, details: ['Detected key entities.'], detectedEntities: ['WordPress', 'WooCommerce', 'Shopify', 'Google', 'OpenAI', 'RefineAI'] },
-        schemaReadiness: { score: 75, details: ['JSON-LD FAQPage schema detected.'] },
-        citationReadiness: { score: 76, details: ['Meta author tag found.'] },
-        eeatSignals: { score: 82, details: ['Privacy policy links found.'] },
-        contentStructure: { score: 90, details: ['Correct order of headers.'] },
-        answerPreview: 'Mock WooCommerce WordPress summary.'
-      };
-      const aeoScore = aeoDataFallback.aeoScore;
+      const aeoData = getAEOAnalysis(analysis);
+      const aeoScore = aeoData.aeoScore;
 
       // ─── COVER PAGE ───
       // Title Bar Decorator
@@ -81,7 +73,7 @@ export default function ReportsView() {
       doc.setTextColor(255, 255, 255);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
-      doc.text('RefineAI Inspector', 20, 22);
+      doc.text('Refine SEO Extension', 20, 22);
 
       // Title
       doc.setTextColor(23, 23, 23);
@@ -135,7 +127,7 @@ export default function ReportsView() {
       doc.setFontSize(9);
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(163, 163, 163);
-      doc.text('Report generated programmatically in-browser via RefineAI sidepanel workspace.', 20, 280);
+      doc.text('Report generated programmatically in-browser via Refine SEO sidepanel workspace.', 20, 280);
 
       // ─── DETAILED SECTIONS ───
       
@@ -281,18 +273,18 @@ export default function ReportsView() {
         doc.setFontSize(14);
         doc.text('Answer Engine Optimization Findings', 20, 30);
 
-        const aeoData = [
-          ['Answer Readiness (25%)', `${aeoDataFallback.answerReadiness.score} / 100`, aeoDataFallback.answerReadiness.details.slice(0, 2).join(' | ')],
-          ['Entity Coverage (20%)', `${aeoDataFallback.entityCoverage.score} / 100`, `Entities: ${aeoDataFallback.entityCoverage.detectedEntities?.join(', ') || 'None'}`],
-          ['Schema Readiness (20%)', `${aeoDataFallback.schemaReadiness?.score ?? 75} / 100`, aeoDataFallback.schemaReadiness?.details.slice(0, 2).join(' | ') || ''],
-          ['Citation Readiness (15%)', `${aeoDataFallback.citationReadiness?.score ?? 76} / 100`, aeoDataFallback.citationReadiness?.details.slice(0, 2).join(' | ') || ''],
-          ['E-E-A-T Signals (10%)', `${aeoDataFallback.eeatSignals.score} / 100`, aeoDataFallback.eeatSignals.details.slice(0, 2).join(' | ')],
-          ['Content Structure (10%)', `${aeoDataFallback.contentStructure?.score ?? 90} / 100`, aeoDataFallback.contentStructure?.details.slice(0, 2).join(' | ') || ''],
+        const aeoReportData = [
+          ['Answer Readiness (25%)', `${aeoData.answerReadiness.score} / 100`, aeoData.answerReadiness.details.slice(0, 2).join(' | ')],
+          ['Entity Coverage (20%)', `${aeoData.entityCoverage.score} / 100`, `Entities: ${aeoData.entityCoverage.detectedEntities?.join(', ') || 'None'}`],
+          ['Schema Readiness (20%)', `${aeoData.schemaReadiness?.score ?? 75} / 100`, aeoData.schemaReadiness?.details.slice(0, 2).join(' | ') || ''],
+          ['Citation Readiness (15%)', `${aeoData.citationReadiness?.score ?? 76} / 100`, aeoData.citationReadiness?.details.slice(0, 2).join(' | ') || ''],
+          ['E-E-A-T Signals (10%)', `${aeoData.eeatSignals.score} / 100`, aeoData.eeatSignals.details.slice(0, 2).join(' | ')],
+          ['Content Structure (10%)', `${aeoData.contentStructure?.score ?? 90} / 100`, aeoData.contentStructure?.details.slice(0, 2).join(' | ') || ''],
         ];
 
         (doc as any).autoTable({
           head: [['AEO Pillar (Weight)', 'Score', 'Key Details']],
-          body: aeoData,
+          body: aeoReportData,
           startY: 37,
           theme: 'grid',
           headStyles: { fillColor: [140, 100, 200] },
@@ -307,7 +299,7 @@ export default function ReportsView() {
         doc.setFontSize(9);
         doc.setTextColor(80, 80, 80);
         
-        const splitPreview = doc.splitTextToSize(aeoDataFallback.answerPreview || 'No answer preview generated.', 170);
+        const splitPreview = doc.splitTextToSize(aeoData.answerPreview || 'No answer preview generated.', 170);
         doc.text(splitPreview, 20, (doc as any).lastAutoTable.finalY + 18);
       }
 
@@ -323,7 +315,7 @@ export default function ReportsView() {
 
         doc.setTextColor(23, 23, 23);
         doc.setFontSize(14);
-        doc.text('RefineAI Priority Checklist', 20, 30);
+        doc.text('Refine SEO Priority Checklist', 20, 30);
 
         const actionList = [];
         if (seoScore < 90) actionList.push(['1', 'SEO Checklist', 'Fix missing alt texts and verify description lengths to optimize meta crawls.']);
@@ -346,7 +338,7 @@ export default function ReportsView() {
       }
 
       // Save PDF
-      const pdfName = `refineai-report-${analysis.site.hostname}.pdf`;
+      const pdfName = `refineseo-report-${analysis.site.hostname}.pdf`;
       doc.save(pdfName);
 
       setSuccessMessage(`PDF Report successfully exported to your downloads folder as "${pdfName}"!`);
@@ -408,7 +400,7 @@ export default function ReportsView() {
               type="text"
               value={agencyName}
               onChange={(e) => setAgencyName(e.target.value)}
-              placeholder="e.g. RefineAI Digital Agency"
+              placeholder="e.g. Refine SEO Agency"
               className="text-xs px-3 py-1.5 border border-border rounded-md focus:outline-none focus:border-primary"
             />
           </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAnalysis } from '@/context/AnalysisContext';
-import { getScoreColor } from '@/utils/scoring';
+import { getScoreColor, getAEOAnalysis } from '@/utils/scoring';
 import SectionCard from '@/components/shared/SectionCard';
 import { 
   Brain, 
@@ -27,65 +27,8 @@ export default function AEOAuditView() {
 
   if (!analysis) return null;
 
-  // Fallback structure supporting 6 subscores if scanner hasn't run on standard page yet
-  const aeo = analysis.aeo || {
-    aeoScore: 85,
-    answerReadiness: {
-      score: 92,
-      details: [
-        'Found question heading: "What is WooCommerce?" followed by descriptive paragraph',
-        'Page uses 3 formatted lists, helpful for list item extraction',
-        'Found structured HTML tables displaying relevant product metrics'
-      ]
-    },
-    entityCoverage: {
-      score: 88,
-      details: [
-        'Detected high-density brand/org entity terms',
-        'Keywords map accurately to Wikipedia concepts'
-      ],
-      detectedEntities: ['WordPress', 'WooCommerce', 'Shopify', 'Google', 'OpenAI', 'RefineAI']
-    },
-    schemaReadiness: {
-      score: 75,
-      details: [
-        'JSON-LD Organization schema detected',
-        'JSON-LD FAQPage schema detected',
-        'JSON-LD Article schema detected',
-        'Missing Product/Service schema recommendation',
-        'Missing BreadcrumbList schema'
-      ]
-    },
-    citationReadiness: {
-      score: 76,
-      details: [
-        'Meta author tag found: "RefineAI Team"',
-        'Page links to verified "About Us" and "Contact" subpages',
-        'References 3 high-authority external sources (.org, wikipedia)',
-        'Last updated date timestamp metadata is defined',
-        'Missing explicit publisher organization citation'
-      ]
-    },
-    eeatSignals: {
-      score: 82,
-      details: [
-        'Author bio profile link discovered',
-        'Contact telephone/email information present',
-        'Privacy Policy and Terms of Use linked in footer',
-        'Corporate office physical address not found'
-      ]
-    },
-    contentStructure: {
-      score: 90,
-      details: [
-        'Heading tree hierarchy is properly ordered (H1 -> H2 -> H3)',
-        'Paragraph length is optimal (average of 38 words per section)',
-        'Table of Contents (TOC) page anchor navigation found',
-        'FAQ section blocks are structured'
-      ]
-    },
-    answerPreview: 'WooCommerce is an open-source ecommerce plugin for WordPress. It is designed for small to large-sized online merchants using WordPress. RefineAI integrates directly with WooCommerce stores to optimize catalog indexing, performance metrics, and schema generation.'
-  };
+  // Compute AEO dynamically based on page data (never fallback to hardcoded fake text)
+  const aeo = getAEOAnalysis(analysis);
 
   const {
     aeoScore,
@@ -163,17 +106,17 @@ export default function AEOAuditView() {
     const weak: string[] = [];
 
     // FAQ schema check
-    const hasFAQ = schemaReadiness.details.some(d => d.toLowerCase().includes('faqpage detected'));
+    const hasFAQ = schemaReadiness.details.some(d => d.toLowerCase().includes('faqpage'));
     if (hasFAQ) strong.push('FAQ Schema Configured');
     else weak.push('Missing FAQ Schema');
 
     // Org schema check
-    const hasOrg = schemaReadiness.details.some(d => d.toLowerCase().includes('organization detected'));
+    const hasOrg = schemaReadiness.details.some(d => d.toLowerCase().includes('organization'));
     if (hasOrg) strong.push('Organization Schema Found');
     else weak.push('Missing Organization Schema');
 
     // Author check
-    const hasAuthor = citationReadiness.details.some(d => d.toLowerCase().includes('author attribution is defined'));
+    const hasAuthor = citationReadiness.details.some(d => d.toLowerCase().includes('author attribution') || d.toLowerCase().includes('author tag'));
     if (hasAuthor) strong.push('Author Profile Defined');
     else weak.push('Missing Author Attributes');
 
@@ -183,7 +126,7 @@ export default function AEOAuditView() {
     else weak.push('Outbound Fact References');
 
     // Policies check
-    const hasPolicies = eeatSignals.details.some(d => d.toLowerCase().includes('privacy policy') && d.toLowerCase().includes('verified'));
+    const hasPolicies = eeatSignals.details.some(d => d.toLowerCase().includes('privacy policy') && (d.toLowerCase().includes('verified') || d.toLowerCase().includes('link')));
     if (hasPolicies) strong.push('Legal Trust Policies Linked');
     else weak.push('Privacy Policy Links');
 

@@ -1,6 +1,6 @@
-# RefineAI Inspector — Website Intelligence Extension
+# Refine SEO Extension — Website Intelligence Extension
 
-RefineAI Inspector is a premium, feature-rich Google Chrome SidePanel extension that audits and inspects websites directly from your browser. It provides comprehensive, real-time insights on SEO, page performance, security headers, accessibility WCAG compliance, web technology stack (with deep detection for WordPress & Shopify), AI insights, competitor comparisons, and exportable PDF audits.
+Refine SEO Extension is a premium, feature-rich Google Chrome SidePanel extension that audits and inspects websites directly from your browser. It provides comprehensive, real-time insights on SEO, page performance, security headers, accessibility WCAG compliance, web technology stack (with deep detection for WordPress & Shopify), AI insights, competitor comparisons, and exportable PDF audits.
 
 ---
 
@@ -58,7 +58,7 @@ This compiles all files and bundles them into the `dist/` directory.
 2.  Enable **Developer mode** using the toggle in the top-right corner.
 3.  Click the **Load unpacked** button in the top-left.
 4.  Select the **`dist/`** directory inside this project folder.
-5.  Click the RefineAI puzzle piece icon in your Chrome toolbar to open the side panel inspector.
+5.  Click the Refine SEO puzzle piece icon in your Chrome toolbar to open the side panel inspector.
 
 ---
 

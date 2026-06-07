@@ -1,9 +1,9 @@
-// RefineAI Inspector — Background Service Worker (Manifest V3)
+// Refine SEO Extension — Background Service Worker (Manifest V3)
 // Message broker between content script and side panel
 
 // Open side panel when extension icon is clicked
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
-  .catch((error) => console.error('[RefineAI] Failed to set panel behavior:', error));
+  .catch((error) => console.error('[Refine SEO] Failed to set panel behavior:', error));
 
 // Store analysis results
 let currentAnalysis = null;
@@ -58,11 +58,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 }
               })
               .catch((err) => {
-                console.error('[RefineAI] Analysis failed:', err);
+                console.error('[Refine SEO] Analysis failed:', err);
                 sendResponse({ success: false, error: err.message });
               });
           }).catch((err) => {
-            console.error('[RefineAI] Script injection failed:', err);
+            console.error('[Refine SEO] Script injection failed:', err);
             sendResponse({ success: false, error: err.message });
           });
         } else {
@@ -209,7 +209,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             });
           })
           .catch((err) => {
-            console.error('[RefineAI] Competitor scan failed, falling back to mock:', err);
+            console.error('[Refine SEO] Competitor scan failed, falling back to mock:', err);
             let hostname = cleanUrl;
             try {
               hostname = new URL(cleanUrl).hostname;
@@ -318,4 +318,4 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
   }, 500);
 });
 
-console.log('[RefineAI] Background service worker initialized');
+console.log('[Refine SEO] Background service worker initialized');

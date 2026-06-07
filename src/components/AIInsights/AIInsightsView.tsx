@@ -20,7 +20,7 @@ export default function AIInsightsView() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      text: "Hello! I am your RefineAI Auditor. I have completed a scan of this website. Ask me anything about its SEO, performance, security, or accessibility metrics, or ask for suggestions to improve the overall score!",
+      text: "Hello! I am your Refine SEO Auditor. I have completed a scan of this website. Ask me anything about its SEO, performance, security, or accessibility metrics, or ask for suggestions to improve the overall score!",
       timestamp: new Date(),
     },
   ]);
@@ -154,7 +154,7 @@ What specific segment would you like me to explain in detail? (e.g., "Tell me ab
     if (apiKey) {
       // Live Gemini API Call
       try {
-        const prompt = `You are RefineAI Auditor, a premium website intelligence assistant.
+        const prompt = `You are Refine SEO Auditor, a premium website intelligence assistant.
 Analyze the following website data and answer the user's question. Be concise, professional, and provide clear actionable bullet points.
 
 Hostname: ${analysis.site.hostname}
@@ -259,7 +259,7 @@ User's Question: "${userText}"`;
         <div className="border border-border rounded-lg bg-surface flex flex-col h-[280px] overflow-hidden">
           <div className="p-2 border-b border-border bg-white flex items-center gap-1.5">
             <Bot size={14} className="text-primary-dark" />
-            <span className="text-xs font-semibold text-gray-800">RefineAI Chatbot</span>
+            <span className="text-xs font-semibold text-gray-800">Refine SEO Chatbot</span>
           </div>
           <div className="flex-grow p-3 overflow-y-auto space-y-3 text-xs bg-gray-50/50">
             {messages.map((m, i) => (
@@ -286,7 +286,7 @@ User's Question: "${userText}"`;
                   <Bot size={12} />
                 </div>
                 <div className="bg-white border border-border p-2.5 rounded-lg rounded-tl-none text-gray-400 italic">
-                  RefineAI is analyzing...
+                  Refine SEO is analyzing...
                 </div>
               </div>
             )}

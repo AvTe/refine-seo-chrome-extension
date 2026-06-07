@@ -46,7 +46,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [isCompetitorLoading, setIsCompetitorLoading] = useState(false);
   const [competitorError, setCompetitorError] = useState<string | null>(null);
   const [screenshotHistory, setScreenshotHistory] = useState<string[]>([]);
-  const [apiKey, setApiKeyState] = useState<string>(() => localStorage.getItem('refineai_api_key') || '');
+  const [apiKey, setApiKeyState] = useState<string>(() => localStorage.getItem('refineseo_api_key') || '');
   const [auditHistory, setAuditHistory] = useState<AuditHistoryItem[]>([]);
 
   // Function to add a scan to history
@@ -85,7 +85,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       if (isChromeExtension) {
         chrome.storage.local.set({ auditHistory: next });
       } else {
-        localStorage.setItem('refineai_audit_history', JSON.stringify(next));
+        localStorage.setItem('refineseo_audit_history', JSON.stringify(next));
       }
       return next;
     });
@@ -96,7 +96,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     if (isChromeExtension) {
       chrome.storage.local.set({ auditHistory: [] });
     } else {
-      localStorage.removeItem('refineai_audit_history');
+      localStorage.removeItem('refineseo_audit_history');
     }
   }, []);
 
@@ -109,7 +109,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
   const setApiKey = (key: string) => {
     setApiKeyState(key);
-    localStorage.setItem('refineai_api_key', key);
+    localStorage.setItem('refineseo_api_key', key);
   };
 
   const analyzeCompetitor = useCallback(async (url: string) => {
@@ -171,7 +171,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         ctx.fillRect(0, 0, 400, 300);
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 20px Inter, sans-serif';
-        ctx.fillText('RefineAI Captures', 30, 60);
+        ctx.fillText('Refine SEO Captures', 30, 60);
         ctx.font = '14px Inter, sans-serif';
         ctx.fillStyle = 'rgba(255,255,255,0.8)';
         ctx.fillText(`Mock Capture: ${new Date().toLocaleTimeString()}`, 30, 95);
@@ -188,7 +188,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       const dataUrl = canvas.toDataURL('image/png');
       setScreenshotHistory((prev) => {
         const next = [dataUrl, ...prev];
-        localStorage.setItem('refineai_screenshot_history', JSON.stringify(next));
+        localStorage.setItem('refineseo_screenshot_history', JSON.stringify(next));
         return next.slice(0, 10);
       });
       return;
@@ -217,13 +217,13 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         }
       });
     } else {
-      const cachedScreenshots = localStorage.getItem('refineai_screenshot_history');
+      const cachedScreenshots = localStorage.getItem('refineseo_screenshot_history');
       if (cachedScreenshots) {
         try {
           setScreenshotHistory(JSON.parse(cachedScreenshots));
         } catch { /* ignore */ }
       }
-      const cachedHistory = localStorage.getItem('refineai_audit_history');
+      const cachedHistory = localStorage.getItem('refineseo_audit_history');
       if (cachedHistory) {
         try {
           setAuditHistory(JSON.parse(cachedHistory));
@@ -401,8 +401,8 @@ function getMockAnalysis(): PageAnalysis {
         external: {
           count: 8,
           items: [
-            { href: 'https://github.com/refineai', text: 'GitHub Profile', rel: 'noopener', isNofollow: false },
-            { href: 'https://twitter.com/refineai', text: 'Twitter Profile', rel: 'noopener', isNofollow: false },
+            { href: 'https://github.com/refineseo', text: 'GitHub Profile', rel: 'noopener', isNofollow: false },
+            { href: 'https://twitter.com/refineseo', text: 'Twitter Profile', rel: 'noopener', isNofollow: false },
             { href: 'https://wordpress.org', text: 'WordPress CMS', rel: 'nofollow noopener', isNofollow: true }
           ]
         },
@@ -564,7 +564,7 @@ function getMockAnalysis(): PageAnalysis {
           'Detected high-density brand/org entity terms',
           'Keywords map accurately to Wikipedia concepts'
         ],
-        detectedEntities: ['WordPress', 'WooCommerce', 'Shopify', 'Google', 'OpenAI', 'RefineAI']
+        detectedEntities: ['WordPress', 'WooCommerce', 'Shopify', 'Google', 'OpenAI', 'Refine SEO']
       },
       schemaReadiness: {
         score: 75,
@@ -579,7 +579,7 @@ function getMockAnalysis(): PageAnalysis {
       citationReadiness: {
         score: 76,
         details: [
-          'Meta author tag found: "RefineAI Team"',
+          'Meta author tag found: "Refine SEO Team"',
           'Page links to verified "About Us" and "Contact" subpages',
           'References 3 high-authority external sources (.org, wikipedia)',
           'Last updated date timestamp metadata is defined',
@@ -604,7 +604,7 @@ function getMockAnalysis(): PageAnalysis {
           'FAQ section blocks are structured'
         ]
       },
-      answerPreview: 'WooCommerce is an open-source ecommerce plugin for WordPress. It is designed for small to large-sized online merchants using WordPress. RefineAI integrates directly with WooCommerce stores to optimize catalog indexing, performance metrics, and schema generation.'
+      answerPreview: 'WooCommerce is an open-source ecommerce plugin for WordPress. It is designed for small to large-sized online merchants using WordPress. Refine SEO integrates directly with WooCommerce stores to optimize catalog indexing, performance metrics, and schema generation.'
     },
     timestamp: Date.now(),
   };
