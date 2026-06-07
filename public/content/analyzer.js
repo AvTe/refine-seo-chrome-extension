@@ -957,6 +957,10 @@
 
     const bodyText = document.body?.innerText || '';
     const bodyTextLower = bodyText.toLowerCase();
+    const htmlLower = document.documentElement.outerHTML.toLowerCase();
+    const wpDetected = document.querySelector('meta[name="generator"]')?.content?.includes('WordPress') || htmlLower.includes('/wp-content/');
+    const shopifyDetected = htmlLower.includes('cdn.shopify.com') || window.Shopify !== undefined;
+    const wooDetected = htmlLower.includes('woocommerce') || document.querySelector('.woocommerce') !== null;
 
     // 1. Answer Readiness (25% weight) - Max 100
     let answerScore = 0;
@@ -980,7 +984,7 @@
     }
 
     // Check for Definitions (25 points)
-    const definitionRegex = /\b(is a|is the|is defined as|refers to|means the|denotes|is an open-source)\b/i;
+    const definitionRegex = /\b(is a|is the|are a|are the|is defined as|are defined as|refers to|means the|denotes|is an open-source)\b/i;
     let hasDefinition = definitionRegex.test(bodyText);
     if (hasDefinition) {
       answerScore += 25;
@@ -1042,6 +1046,10 @@
       }
     });
 
+    if (shopifyDetected) detectedEntitiesSet.add('Shopify');
+    if (wooDetected) detectedEntitiesSet.add('WooCommerce');
+    if (wpDetected) detectedEntitiesSet.add('WordPress');
+
     // Extract other capitalized words that look like entities
     const properNounRegex = /\b[A-Z][a-z]{3,15}\b/g;
     const properNouns = bodyText.match(properNounRegex) || [];
@@ -1053,23 +1061,12 @@
     });
 
     const detectedEntities = Array.from(detectedEntitiesSet);
-    if (detectedEntities.length > 0) {
-      entityScore = Math.min(100, detectedEntities.length * 20);
-      detailsEntity.push(`Extracted ${detectedEntities.length} key semantic entities.`);
-    } else {
-      detailsEntity.push('No prominent semantic entities detected in body text.');
-    }
+    const uniqueEntitiesCount = detectedEntities.length;
+    
+    // Strict Entity coverage calculations
+    entityScore += Math.min(30, uniqueEntitiesCount * 6);
+    detailsEntity.push(`Detected ${uniqueEntitiesCount} unique entities in body text.`);
 
-    const boldCount = document.querySelectorAll('strong, b').length;
-    if (boldCount > 3) {
-      entityScore = Math.min(100, entityScore + 10);
-      detailsEntity.push(`Used bold tags on ${boldCount} terms to emphasize key concept entities.`);
-    } else {
-      detailsEntity.push('Highlight key entities with bold formatting tags.');
-    }
-
-    // 3. Schema Readiness (20% weight) - Max 100
-    let schemaScore = 0;
     const schemasFound = [];
     document.querySelectorAll('script[type="application/ld+json"]').forEach(el => {
       try {
@@ -1085,23 +1082,111 @@
       } catch (e) { /* ignore */ }
     });
 
-    const schemaTargets = [
-      { type: 'organization', points: 20, label: 'Organization' },
-      { type: 'faqpage', points: 20, label: 'FAQPage' },
-      { type: 'product', points: 20, label: 'Product' },
-      { type: 'article', points: 20, label: 'Article / BlogPosting' },
-      { type: 'breadcrumblist', points: 20, label: 'BreadcrumbList' }
-    ];
+    const hasOrgOrPersonSchema = schemasFound.some(sf => sf.includes('organization') || sf.includes('person'));
+    if (hasOrgOrPersonSchema) {
+      entityScore += 20;
+      detailsEntity.push('Semantic context verified via Organization/Person structured schema.');
+    } else {
+      detailsEntity.push('Missing Organization/Person schema to establish semantic entity context.');
+    }
 
-    schemaTargets.forEach(tgt => {
-      const hasMatch = schemasFound.some(sf => sf.includes(tgt.type));
-      if (hasMatch) {
-        schemaScore += tgt.points;
-        detailsSchema.push(`Detected schema type: ${tgt.label}`);
-      } else {
-        detailsSchema.push(`Missing schema type: ${tgt.label}`);
+    const hostSplit = window.location.hostname.split('.')[0];
+    const titleCleaned = document.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const hostCleaned = hostSplit.replace(/[^a-z0-9]/g, '');
+    const isDomainInHeaders = (hostCleaned.length > 3 && titleCleaned.includes(hostCleaned)) || 
+                             Array.from(document.querySelectorAll('h1, h2')).some(h => {
+                               const hText = (h.textContent || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                               return hostCleaned.length > 3 && hText.includes(hostCleaned);
+                             });
+    if (isDomainInHeaders && hostSplit.length > 3) {
+      entityScore += 15;
+      detailsEntity.push(`Brand authority entity "${hostSplit}" highlighted in titles/headings.`);
+    } else {
+      detailsEntity.push('Brand name entity not explicitly highlighted in main headings.');
+    }
+
+    const boldCount = document.querySelectorAll('strong, b').length;
+    if (boldCount > 4) {
+      entityScore += 15;
+      detailsEntity.push(`Used bold tags on ${boldCount} terms to emphasize key concept entities.`);
+    } else {
+      detailsEntity.push('Highlight key entities with bold formatting tags.');
+    }
+
+    if (hasDefinition) {
+      entityScore += 20;
+      detailsEntity.push('Found definition statements linking terms to semantic explanations.');
+    } else {
+      detailsEntity.push('No definition phrases found to link terms.');
+    }
+
+    // 3. Schema Readiness (20% weight) - Max 100
+    let schemaScore = 0;
+    const tech = detectTechnology();
+    const html = document.documentElement.outerHTML;
+
+    // Determine page context based on existing schemas and CMS detection
+    const isArticlePage = schemasFound.some(s => s.includes('article') || s.includes('blogposting'));
+    const isProductPage = schemasFound.some(s => s.includes('product')) || 
+                          (tech.ecommerce && tech.ecommerce.length > 0) || 
+                          html.includes('woocommerce') || 
+                          html.includes('cdn.shopify.com');
+
+    if (isArticlePage) {
+      detailsSchema.push('Page Context identified: Article / Editorial content.');
+      const hasArticle = schemasFound.some(sf => sf.includes('article') || sf.includes('blogposting'));
+      const hasPerson = schemasFound.some(sf => sf.includes('person') || sf.includes('author'));
+      const hasBreadcrumb = schemasFound.some(sf => sf.includes('breadcrumblist'));
+
+      if (hasArticle) { schemaScore += 40; detailsSchema.push('Detected Article schema (40 pts)'); }
+      else detailsSchema.push('Missing Article/BlogPosting schema');
+
+      if (hasPerson) { schemaScore += 30; detailsSchema.push('Detected Person/Author schema (30 pts)'); }
+      else detailsSchema.push('Missing Person/Author schema (attribution check)');
+
+      if (hasBreadcrumb) { schemaScore += 30; detailsSchema.push('Detected BreadcrumbList schema (30 pts)'); }
+      else detailsSchema.push('Missing BreadcrumbList schema');
+
+      const bonusCount = schemasFound.filter(sf => sf.includes('organization') || sf.includes('faqpage')).length;
+      if (bonusCount > 0) {
+        schemaScore = Math.min(100, schemaScore + 10);
+        detailsSchema.push('Found additional helper schemas (Organization or FAQPage).');
       }
-    });
+    } else if (isProductPage) {
+      detailsSchema.push('Page Context identified: E-commerce / Product catalog.');
+      const hasProduct = schemasFound.some(sf => sf.includes('product'));
+      const hasOrg = schemasFound.some(sf => sf.includes('organization'));
+      const hasBreadcrumb = schemasFound.some(sf => sf.includes('breadcrumblist'));
+
+      if (hasProduct) { schemaScore += 40; detailsSchema.push('Detected Product schema (40 pts)'); }
+      else detailsSchema.push('Missing Product schema on e-commerce catalog page');
+
+      if (hasOrg) { schemaScore += 30; detailsSchema.push('Detected Organization schema (30 pts)'); }
+      else detailsSchema.push('Missing Organization schema');
+
+      if (hasBreadcrumb) { schemaScore += 30; detailsSchema.push('Detected BreadcrumbList schema (30 pts)'); }
+      else detailsSchema.push('Missing BreadcrumbList schema');
+
+      const bonusCount = schemasFound.filter(sf => sf.includes('offer') || sf.includes('faqpage') || sf.includes('aggregateoffer')).length;
+      if (bonusCount > 0) {
+        schemaScore = Math.min(100, schemaScore + 10);
+        detailsSchema.push('Found additional helper schemas (Offer, FAQPage, etc).');
+      }
+    } else {
+      detailsSchema.push('Page Context identified: Standard Web / Landing page.');
+      const hasOrg = schemasFound.some(sf => sf.includes('organization'));
+      const hasBreadcrumb = schemasFound.some(sf => sf.includes('breadcrumblist'));
+      const hasSiteOrPage = schemasFound.some(sf => sf.includes('website') || sf.includes('webpage') || sf.includes('faqpage'));
+
+      if (hasOrg) { schemaScore += 50; detailsSchema.push('Detected Organization schema (50 pts)'); }
+      else detailsSchema.push('Missing Organization schema');
+
+      if (hasBreadcrumb) { schemaScore += 30; detailsSchema.push('Detected BreadcrumbList schema (30 pts)'); }
+      else detailsSchema.push('Missing BreadcrumbList schema');
+
+      if (hasSiteOrPage) { schemaScore += 20; detailsSchema.push('Detected helper schema like WebSite/WebPage/FAQPage (20 pts)'); }
+      else detailsSchema.push('Missing supportive page schemas (WebSite/WebPage)');
+    }
 
     if (document.querySelector('[itemscope]')) {
       schemaScore = Math.min(100, schemaScore + 10);
@@ -1142,7 +1227,7 @@
     document.querySelectorAll('a[href]').forEach(el => {
       const href = el.getAttribute('href').toLowerCase();
       const text = el.textContent.toLowerCase();
-      if (href.includes('contact') || text.includes('contact us') || text.includes('get in touch')) {
+      if (href.includes('contact') || text.includes('contact us') || text.includes('get in touch') || text.includes('support')) {
         hasContact = true;
       }
     });
@@ -1206,41 +1291,55 @@
     }
 
     // Address (20 pts)
-    const addressKeywords = /\b(st\.|street|ave\.|avenue|rd\.|road|suite|building|floor|po box)\b/i;
-    const hasZip = /\b\d{5}(-\d{4})?\b/.test(bodyText) || /\b[A-Z]\d[A-Z] \d[A-Z]\d\b/i.test(bodyText); // US or Canadian ZIP
-    if (addressKeywords.test(bodyText) || hasZip) {
+    const streetRegex = /\b\d+\s+[A-Za-z0-9#\.\s]{3,30}\s+(street|st\.|road|rd\.|avenue|ave\.|drive|dr\.|way|court|ct\.|boulevard|blvd|suite|floor|po box)\b/i;
+    const zipRegex = /\b\d{5}(-\d{4})?\b|\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b/i;
+    const hasStreetAddress = streetRegex.test(bodyText);
+    const hasZipCode = zipRegex.test(bodyText);
+    if (hasStreetAddress && hasZipCode) {
       eeatScore += 20;
-      detailsEeat.push('Physical mailing address signals detected in text.');
+      detailsEeat.push('Physical mailing address and ZIP code detected in page body.');
+    } else if (hasStreetAddress || hasZipCode) {
+      eeatScore += 10;
+      detailsEeat.push('Partial address signals detected (either street format or ZIP code found).');
     } else {
+      eeatScore += 0;
       detailsEeat.push('No physical mailing address or ZIP code found in footer/body.');
     }
 
     // Social Profiles (20 pts)
-    let socialCount = 0;
+    const socialDomains = ['twitter.com', 'x.com', 'facebook.com', 'linkedin.com', 'instagram.com', 'youtube.com'];
+    const socialFound = new Set();
     document.querySelectorAll('a[href]').forEach(el => {
       const href = el.getAttribute('href').toLowerCase();
-      if (href.includes('twitter.com') || href.includes('x.com') || href.includes('facebook.com') || href.includes('linkedin.com') || href.includes('instagram.com') || href.includes('youtube.com')) {
-        socialCount++;
-      }
+      socialDomains.forEach(domain => {
+        if (href.includes(domain)) socialFound.add(domain);
+      });
     });
-    if (socialCount > 0) {
+    if (socialFound.size >= 2) {
       eeatScore += 20;
-      detailsEeat.push(`Linked ${socialCount} social media profile channels.`);
+      detailsEeat.push(`Linked ${socialFound.size} unique social media profile channels.`);
+    } else if (socialFound.size === 1) {
+      eeatScore += 10;
+      detailsEeat.push('Linked 1 social media profile channel. Integrate multiple networks to build brand trust.');
     } else {
       detailsEeat.push('No social media profile links (LinkedIn, X, Facebook) detected.');
     }
 
     // Privacy & Terms Policies (20 pts)
-    let policyCount = 0;
+    let privacyFound = false;
+    let termsFound = false;
     document.querySelectorAll('a[href]').forEach(el => {
       const text = el.textContent.toLowerCase();
-      if (text.includes('privacy policy') || text.includes('terms of service') || text.includes('terms of use')) {
-        policyCount++;
-      }
+      const href = el.getAttribute('href').toLowerCase();
+      if (text.includes('privacy') || href.includes('privacy')) privacyFound = true;
+      if (text.includes('terms') || text.includes('conditions') || href.includes('terms') || href.includes('conditions')) termsFound = true;
     });
-    if (policyCount > 0) {
+    if (privacyFound && termsFound) {
       eeatScore += 20;
-      detailsEeat.push('Verified links to Privacy Policy and/or Terms of Service agreements.');
+      detailsEeat.push('Verified links to both Privacy Policy and Terms of Service agreements.');
+    } else if (privacyFound || termsFound) {
+      eeatScore += 10;
+      detailsEeat.push('Found link to either Privacy Policy or Terms of Service, but not both.');
     } else {
       detailsEeat.push('No links to Privacy Policy or Terms of Service found.');
     }
@@ -1324,7 +1423,7 @@
     // Citation Readiness: 15%
     // EEAT Signals: 10%
     // Content Structure: 10%
-    const aeoScore = Math.round(
+    const rawScore = Math.round(
       (answerScore * 0.25) +
       (entityScore * 0.20) +
       (schemaScore * 0.20) +
@@ -1332,6 +1431,8 @@
       (eeatScore * 0.10) +
       (structureScore * 0.10)
     );
+
+    const aeoScore = Math.min(100, Math.max(0, Math.round(rawScore * 0.58 + 35)));
 
     // AI Answer Preview Synthesis
     let answerPreview = '';
