@@ -1,5 +1,12 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import type { PageAnalysis, NavSection, CompetitorAnalysis } from '@/types/analysis';
+import type { PageAnalysis, NavSection, CompetitorAnalysis, AuditHistoryItem } from '@/types/analysis';
+import {
+  calculateSEOScore,
+  calculateSecurityScore,
+  calculatePerformanceScore,
+  calculateAccessibilityScore,
+  calculateOverallScore,
+} from '@/utils/scoring';
 
 interface AnalysisContextType {
   analysis: PageAnalysis | null;
@@ -19,6 +26,8 @@ interface AnalysisContextType {
   captureScreenshot: () => Promise<void>;
   apiKey: string;
   setApiKey: (key: string) => void;
+  auditHistory: AuditHistoryItem[];
+  clearHistory: () => void;
 }
 
 const AnalysisContext = createContext<AnalysisContextType | null>(null);
@@ -38,6 +47,64 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [competitorError, setCompetitorError] = useState<string | null>(null);
   const [screenshotHistory, setScreenshotHistory] = useState<string[]>([]);
   const [apiKey, setApiKeyState] = useState<string>(() => localStorage.getItem('refineai_api_key') || '');
+  const [auditHistory, setAuditHistory] = useState<AuditHistoryItem[]>([]);
+
+  // Function to add a scan to history
+  const addToHistory = useCallback((data: PageAnalysis) => {
+    const seo = calculateSEOScore(data);
+    const security = calculateSecurityScore(data);
+    const performance = calculatePerformanceScore(data);
+    const accessibility = calculateAccessibilityScore(data);
+    const overall = calculateOverallScore(data);
+
+    const newItem: AuditHistoryItem = {
+      timestamp: Date.now(),
+      url: data.site.url,
+      hostname: data.site.hostname,
+      scores: {
+        overall,
+        seo,
+        performance,
+        security,
+        accessibility
+      }
+    };
+
+    setAuditHistory(prev => {
+      const lastItem = prev[0];
+      const isRecentDuplicate = lastItem && 
+        lastItem.hostname === newItem.hostname && 
+        (newItem.timestamp - lastItem.timestamp < 3000); // 3 seconds threshold
+
+      if (isRecentDuplicate) {
+        return prev;
+      }
+
+      const next = [newItem, ...prev].slice(0, 30);
+      if (isChromeExtension) {
+        chrome.storage.local.set({ auditHistory: next });
+      } else {
+        localStorage.setItem('refineai_audit_history', JSON.stringify(next));
+      }
+      return next;
+    });
+  }, []);
+
+  const clearHistory = useCallback(() => {
+    setAuditHistory([]);
+    if (isChromeExtension) {
+      chrome.storage.local.set({ auditHistory: [] });
+    } else {
+      localStorage.removeItem('refineai_audit_history');
+    }
+  }, []);
+
+  // Save to history when analysis changes
+  useEffect(() => {
+    if (analysis && !isLoading) {
+      addToHistory(analysis);
+    }
+  }, [analysis, isLoading, addToHistory]);
 
   const setApiKey = (key: string) => {
     setApiKeyState(key);
@@ -137,19 +204,28 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  // Load screenshot history on init
+  // Load screenshot and audit history on init
   useEffect(() => {
     if (isChromeExtension) {
-      chrome.storage.local.get('screenshotHistory', (result) => {
+      chrome.storage.local.get(['screenshotHistory', 'auditHistory'], (result) => {
         if (result.screenshotHistory) {
           setScreenshotHistory(result.screenshotHistory as string[]);
         }
+        if (result.auditHistory) {
+          setAuditHistory(result.auditHistory as AuditHistoryItem[]);
+        }
       });
     } else {
-      const cached = localStorage.getItem('refineai_screenshot_history');
-      if (cached) {
+      const cachedScreenshots = localStorage.getItem('refineai_screenshot_history');
+      if (cachedScreenshots) {
         try {
-          setScreenshotHistory(JSON.parse(cached));
+          setScreenshotHistory(JSON.parse(cachedScreenshots));
+        } catch { /* ignore */ }
+      }
+      const cachedHistory = localStorage.getItem('refineai_audit_history');
+      if (cachedHistory) {
+        try {
+          setAuditHistory(JSON.parse(cachedHistory));
         } catch { /* ignore */ }
       }
     }
@@ -241,6 +317,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         captureScreenshot,
         apiKey,
         setApiKey,
+        auditHistory,
+        clearHistory,
       }}
     >
       {children}
@@ -443,6 +521,9 @@ function getMockAnalysis(): PageAnalysis {
         fcp: 1240,
         domContentLoaded: 2100,
         loadComplete: 3800,
+        lcp: 1450,
+        cls: 0.08,
+        inp: 85,
       },
       resources: {
         images: { count: 34, totalSize: 2457600, items: [{ url: '/img/hero.jpg', size: 845000, duration: 450, type: 'img' }] },

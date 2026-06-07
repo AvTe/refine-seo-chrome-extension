@@ -10,6 +10,7 @@ import TechStackView from '@/components/TechStack/TechStackView';
 import AccessibilityView from '@/components/Accessibility/AccessibilityView';
 import SettingsView from '@/components/Settings/SettingsView';
 import AIInsightsView from '@/components/AIInsights/AIInsightsView';
+import AIActionCenter from '@/components/AIInsights/AIActionCenter';
 import CompetitorView from '@/components/Competitor/CompetitorView';
 import ReportsView from '@/components/Reports/ReportsView';
 import ScreenshotsView from '@/components/Screenshots/ScreenshotsView';
@@ -45,6 +46,7 @@ function AppContent() {
     techstack: <TechStackView />,
     accessibility: <AccessibilityView />,
     aiinsights: <AIInsightsView />,
+    actioncenter: <AIActionCenter />,
     competitor: <CompetitorView />,
     reports: <ReportsView />,
     screenshots: <ScreenshotsView />,

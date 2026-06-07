@@ -49,6 +49,68 @@ export default function PerformanceView() {
         <MetricCard label="Requests" value={`${perf.totalRequests}`} threshold={perf.totalRequests < 40 ? 'good' : perf.totalRequests < 80 ? 'ok' : 'bad'} />
       </div>
 
+      {/* Core Web Vitals (LCP, CLS, INP) */}
+      <SectionCard title="Core Web Vitals (Real User Metrics)" collapsible={false}>
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="p-2.5 rounded-lg border border-border bg-surface">
+            <p className="text-3xs font-bold text-gray-400 uppercase tracking-wide">LCP</p>
+            <p className="text-xs font-extrabold text-gray-800 mt-1">
+              {perf.timings.lcp ? formatMs(perf.timings.lcp) : '—'}
+            </p>
+            <span className={`badge mt-1.5 text-3xs ${
+              !perf.timings.lcp 
+                ? 'badge-neutral' 
+                : perf.timings.lcp <= 2500 
+                  ? 'badge-success' 
+                  : perf.timings.lcp <= 4000 
+                    ? 'badge-warning' 
+                    : 'badge-danger'
+            }`}>
+              {!perf.timings.lcp ? 'Unknown' : perf.timings.lcp <= 2500 ? 'Good' : perf.timings.lcp <= 4000 ? 'Needs Work' : 'Poor'}
+            </span>
+          </div>
+
+          <div className="p-2.5 rounded-lg border border-border bg-surface">
+            <p className="text-3xs font-bold text-gray-400 uppercase tracking-wide">CLS</p>
+            <p className="text-xs font-extrabold text-gray-800 mt-1">
+              {perf.timings.cls !== undefined && perf.timings.cls !== null ? perf.timings.cls : '—'}
+            </p>
+            <span className={`badge mt-1.5 text-3xs ${
+              perf.timings.cls === undefined || perf.timings.cls === null
+                ? 'badge-neutral' 
+                : perf.timings.cls <= 0.1 
+                  ? 'badge-success' 
+                  : perf.timings.cls <= 0.25 
+                    ? 'badge-warning' 
+                    : 'badge-danger'
+            }`}>
+              {perf.timings.cls === undefined || perf.timings.cls === null ? 'Unknown' : perf.timings.cls <= 0.1 ? 'Good' : perf.timings.cls <= 0.25 ? 'Needs Work' : 'Poor'}
+            </span>
+          </div>
+
+          <div className="p-2.5 rounded-lg border border-border bg-surface">
+            <p className="text-3xs font-bold text-gray-400 uppercase tracking-wide">INP</p>
+            <p className="text-xs font-extrabold text-gray-800 mt-1">
+              {perf.timings.inp ? formatMs(perf.timings.inp) : '—'}
+            </p>
+            <span className={`badge mt-1.5 text-3xs ${
+              !perf.timings.inp 
+                ? 'badge-neutral' 
+                : perf.timings.inp <= 200 
+                  ? 'badge-success' 
+                  : perf.timings.inp <= 500 
+                    ? 'badge-warning' 
+                    : 'badge-danger'
+            }`}>
+              {!perf.timings.inp ? 'No interaction' : perf.timings.inp <= 200 ? 'Good' : perf.timings.inp <= 500 ? 'Needs Work' : 'Poor'}
+            </span>
+          </div>
+        </div>
+        <p className="text-3xs text-gray-400 mt-2 text-center">
+          LCP: Largest Contentful Paint · CLS: Cumulative Layout Shift · INP: Interaction to Next Paint
+        </p>
+      </SectionCard>
+
       {/* Timing Waterfall */}
       <SectionCard title="Load Timeline">
         <div className="h-40">

@@ -192,6 +192,9 @@ export interface PerformanceAnalysis {
     fcp: number | null;
     domContentLoaded: number | null;
     loadComplete: number | null;
+    lcp?: number | null;
+    cls?: number | null;
+    inp?: number | null;
   };
   resources: {
     images: ResourceGroup;
@@ -204,6 +207,19 @@ export interface PerformanceAnalysis {
   totalRequests: number;
   domSize: number;
   domDepth: number;
+}
+
+export interface AuditHistoryItem {
+  timestamp: number;
+  url: string;
+  hostname: string;
+  scores: {
+    overall: number;
+    seo: number;
+    performance: number;
+    security: number;
+    accessibility: number;
+  };
 }
 
 export interface A11yIssue {
@@ -246,6 +262,7 @@ export type NavSection =
   | 'techstack'
   | 'accessibility'
   | 'aiinsights'
+  | 'actioncenter'
   | 'competitor'
   | 'reports'
   | 'screenshots'

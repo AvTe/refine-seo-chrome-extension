@@ -8,6 +8,44 @@
   if (window.__REFINEAI_INJECTED__) return;
   window.__REFINEAI_INJECTED__ = true;
 
+  // Accumulated Web Vitals variables
+  let clsValue = 0;
+  let lcpValue = 0;
+  let inpValue = 0;
+
+  try {
+    const clsObserver = new PerformanceObserver((entryList) => {
+      for (const entry of entryList.getEntries()) {
+        if (!entry.hadRecentInput) {
+          clsValue += entry.value;
+        }
+      }
+    });
+    clsObserver.observe({ type: 'layout-shift', buffered: true });
+  } catch (e) { /* ignore */ }
+
+  try {
+    const lcpObserver = new PerformanceObserver((entryList) => {
+      const entries = entryList.getEntries();
+      const lastEntry = entries[entries.length - 1];
+      lcpValue = lastEntry.startTime;
+    });
+    lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+  } catch (e) { /* ignore */ }
+
+  try {
+    const inpObserver = new PerformanceObserver((entryList) => {
+      for (const entry of entryList.getEntries()) {
+        const duration = entry.duration;
+        if (duration > inpValue) {
+          inpValue = duration;
+        }
+      }
+    });
+    inpObserver.observe({ type: 'first-input', buffered: true });
+    inpObserver.observe({ type: 'event', buffered: true });
+  } catch (e) { /* ignore */ }
+
   // ============================================================
   // SEO ANALYSIS
   // ============================================================
@@ -754,7 +792,10 @@
       ttfb: ttfb ? Math.round(ttfb) : null,
       fcp: fcp ? Math.round(fcp) : null,
       domContentLoaded: navigation.domContentLoadedEventEnd - navigation.startTime || null,
-      loadComplete: navigation.loadEventEnd - navigation.startTime || null
+      loadComplete: navigation.loadEventEnd - navigation.startTime || null,
+      lcp: lcpValue ? Math.round(lcpValue) : null,
+      cls: Math.round(clsValue * 1000) / 1000,
+      inp: inpValue ? Math.round(inpValue) : null
     };
 
     // DOM metrics

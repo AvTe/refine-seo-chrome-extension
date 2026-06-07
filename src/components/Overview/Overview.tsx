@@ -11,9 +11,10 @@ import {
   formatBytes,
 } from '@/utils/scoring';
 import { Globe, Lock, Clock, Layers, Server, Wifi } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function Overview() {
-  const { analysis, lastScanTime } = useAnalysis();
+  const { analysis, lastScanTime, auditHistory } = useAnalysis();
   if (!analysis) return null;
 
   const seoScore = calculateSEOScore(analysis);
@@ -22,6 +23,11 @@ export default function Overview() {
   const accessibilityScore = calculateAccessibilityScore(analysis);
   const overallScore = calculateOverallScore(analysis);
   const overallColor = getScoreColor(overallScore);
+
+  const hostHistory = auditHistory.filter(h => h.hostname === analysis.site.hostname);
+  const currentScanTimeMs = analysis.timestamp;
+  const prevScan = hostHistory.find(h => h.timestamp < currentScanTimeMs);
+  const delta = prevScan ? overallScore - prevScan.scores.overall : null;
 
   const techItems = [
     ...analysis.technology.cms,
@@ -33,11 +39,13 @@ export default function Overview() {
   return (
     <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up">
       {/* Header */}
-      <div>
-        <h1 className="text-lg font-bold text-gray-900">Website Overview</h1>
-        <p className="text-xs text-gray-400 mt-0.5">
-          {analysis.site.hostname} · Last scan {lastScanTime || '—'}
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-lg font-bold text-gray-900">Website Overview</h1>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {analysis.site.hostname} · Last scan {lastScanTime || '—'}
+          </p>
+        </div>
       </div>
 
       {/* Overall Score */}
@@ -52,7 +60,20 @@ export default function Overview() {
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 font-medium">Website Score</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-gray-500 font-medium">Website Score</p>
+              {delta !== null && (
+                <span className={`text-2xs font-semibold px-1.5 py-0.5 rounded ${
+                  delta > 0 
+                    ? 'bg-green-50 text-green-700' 
+                    : delta < 0 
+                      ? 'bg-red-50 text-red-700' 
+                      : 'bg-gray-50 text-gray-600'
+                }`}>
+                  {delta > 0 ? `↑ +${delta}` : delta < 0 ? `↓ ${Math.abs(delta)}` : 'No change'}
+                </span>
+              )}
+            </div>
             <p className="text-xs text-gray-400 mt-0.5">
               Based on SEO, security, performance & accessibility
             </p>
@@ -73,6 +94,25 @@ export default function Overview() {
         <ScoreCard label="Performance" score={performanceScore} />
         <ScoreCard label="Accessibility" score={accessibilityScore} />
       </div>
+
+      {/* Score History Graph */}
+      {hostHistory.length >= 2 && (
+        <SectionCard title="Score History Trends" defaultOpen={true}>
+          <div className="h-28 mt-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={hostHistory.slice(0, 10).reverse().map(h => ({
+                time: new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                score: h.scores.overall
+              }))}>
+                <XAxis dataKey="time" tick={{ fontSize: 9, fill: '#737373' }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} width={18} tick={{ fontSize: 9, fill: '#737373' }} axisLine={false} tickLine={false} />
+                <Tooltip formatter={(v) => [`Score: ${v}`, 'Overall']} contentStyle={{ fontSize: 10, borderRadius: 6 }} />
+                <Line type="monotone" dataKey="score" stroke="#a06ce0" strokeWidth={2} dot={{ r: 2 }} activeDot={{ r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </SectionCard>
+      )}
 
       {/* Site Info */}
       <SectionCard title="Site Information">

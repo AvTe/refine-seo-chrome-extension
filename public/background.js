@@ -243,6 +243,53 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       break;
 
+    case 'CHECK_LINKS_HEALTH':
+      if (message.links && Array.isArray(message.links)) {
+        const links = message.links;
+        const results = {};
+        let index = 0;
+        const limit = 5;
+        const promises = [];
+
+        const runNext = () => {
+          if (index >= links.length) return Promise.resolve();
+          const url = links[index++];
+
+          if (results[url]) {
+            return runNext();
+          }
+
+          results[url] = { status: 'checking', code: null };
+
+          return fetch(url, { method: 'HEAD', redirect: 'follow' })
+            .then(res => {
+              results[url] = { status: 'success', code: res.status };
+            })
+            .catch(() => {
+              // Fallback to GET since HEAD is blocked by some servers
+              return fetch(url, { method: 'GET', redirect: 'follow' })
+                .then(res => {
+                  results[url] = { status: 'success', code: res.status };
+                })
+                .catch(err => {
+                  results[url] = { status: 'fail', error: err.message, code: 0 };
+                });
+            })
+            .then(() => runNext());
+        };
+
+        for (let i = 0; i < Math.min(limit, links.length); i++) {
+          promises.push(runNext());
+        }
+
+        Promise.all(promises).then(() => {
+          sendResponse({ success: true, results });
+        });
+
+        return true;
+      }
+      break;
+
     default:
       break;
   }
