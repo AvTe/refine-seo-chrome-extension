@@ -1511,7 +1511,7 @@
       activeHighlightOverlay.remove();
       activeHighlightOverlay = null;
     }
-    const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, img');
     elements.forEach(el => {
       if (el.dataset.oldOutline !== undefined) {
         el.style.outline = el.dataset.oldOutline;
@@ -1585,6 +1585,71 @@
     activeHighlightOverlay = badge;
   }
 
+  function highlightImage(imageUrl, scrollToElement) {
+    removeHighlight();
+    if (!imageUrl) return;
+
+    const images = Array.from(document.querySelectorAll('img'));
+    const matchUrl = imageUrl.toLowerCase();
+    const el = images.find(img => {
+      try {
+        const src = img.src.toLowerCase();
+        return src === matchUrl || src.includes(matchUrl) || matchUrl.includes(src);
+      } catch {
+        return false;
+      }
+    });
+
+    if (!el) {
+      console.warn('[Refine SEO] Image element not found for url:', imageUrl);
+      return;
+    }
+
+    // Save original styles if not already saved
+    if (el.dataset.oldOutline === undefined) {
+      el.dataset.oldOutline = el.style.outline || '';
+    }
+    if (el.dataset.oldOutlineOffset === undefined) {
+      el.dataset.oldOutlineOffset = el.style.outlineOffset || '';
+    }
+    if (el.dataset.oldTransition === undefined) {
+      el.dataset.oldTransition = el.style.transition || '';
+    }
+
+    // Apply highlight styles
+    el.style.transition = 'outline 0.2s ease-in-out, outline-offset 0.2s ease-in-out';
+    el.style.outline = '3px solid #6366f1';
+    el.style.outlineOffset = '3px';
+
+    if (scrollToElement) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Position indicator badge above element
+    const rect = el.getBoundingClientRect();
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    const badge = document.createElement('div');
+    badge.textContent = 'LARGEST IMAGE';
+    badge.style.position = 'absolute';
+    badge.style.top = `${Math.max(0, rect.top + scrollTop - 22)}px`;
+    badge.style.left = `${rect.left + scrollLeft}px`;
+    badge.style.backgroundColor = '#6366f1';
+    badge.style.color = '#ffffff';
+    badge.style.padding = '2px 6px';
+    badge.style.borderRadius = '4px';
+    badge.style.fontSize = '10px';
+    badge.style.fontFamily = 'sans-serif';
+    badge.style.fontWeight = 'bold';
+    badge.style.zIndex = '2147483647';
+    badge.style.pointerEvents = 'none';
+    badge.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+    
+    document.body.appendChild(badge);
+    activeHighlightOverlay = badge;
+  }
+
   // Listen for analysis requests and highlight commands
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'RUN_ANALYSIS') {
@@ -1592,6 +1657,9 @@
       sendResponse(result);
     } else if (message.type === 'HIGHLIGHT_HEADING') {
       highlightElement(message.index, message.scroll);
+      sendResponse({ success: true });
+    } else if (message.type === 'HIGHLIGHT_IMAGE') {
+      highlightImage(message.url, message.scroll);
       sendResponse({ success: true });
     } else if (message.type === 'CLEAR_HIGHLIGHT') {
       removeHighlight();

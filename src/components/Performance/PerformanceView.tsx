@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAnalysis } from '@/context/AnalysisContext';
 import SectionCard from '@/components/shared/SectionCard';
 import { calculatePerformanceScore, getScoreColor, formatBytes, formatMs } from '@/utils/scoring';
@@ -6,6 +7,42 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 
 export default function PerformanceView() {
   const { analysis } = useAnalysis();
   if (!analysis) return null;
+
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const isChromeExtension = typeof chrome !== 'undefined' && chrome.runtime?.id;
+
+  const highlightImageOnPage = (url: string | null, scroll = false) => {
+    if (!isChromeExtension) return;
+    
+    const sendToTab = (tabId: number) => {
+      if (url !== null) {
+        chrome.tabs.sendMessage(tabId, { 
+          type: 'HIGHLIGHT_IMAGE', 
+          url, 
+          scroll 
+        }).catch((err) => {
+          console.error('[Refine SEO] Failed to send highlight message:', err);
+        });
+      } else {
+        chrome.tabs.sendMessage(tabId, { 
+          type: 'CLEAR_HIGHLIGHT' 
+        }).catch((err) => {
+          console.error('[Refine SEO] Failed to send clear message:', err);
+        });
+      }
+    };
+
+    if (analysis?.tabId) {
+      sendToTab(analysis.tabId);
+    } else {
+      chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+        const activeTab = tabs[0];
+        if (activeTab?.id) {
+          sendToTab(activeTab.id);
+        }
+      });
+    }
+  };
 
   const { performance: perf } = analysis;
   const score = calculatePerformanceScore(analysis);
@@ -175,14 +212,35 @@ export default function PerformanceView() {
       {perf.resources.images.items.length > 0 && (
         <SectionCard title="Largest Images" defaultOpen={false}>
           <div className="space-y-1">
-            {perf.resources.images.items.slice(0, 5).map((item: any, i: number) => (
-              <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-border-light dark:border-zinc-800/40 last:border-0">
-                <span className="text-gray-600 dark:text-zinc-400 truncate max-w-[60%]">
-                  {item.url.split('/').pop()?.split('?')[0] || item.url}
-                </span>
-                <span className="font-medium text-gray-800 dark:text-zinc-200 tabular-nums">{formatBytes(item.size)}</span>
-              </div>
-            ))}
+            {perf.resources.images.items.slice(0, 5).map((item: any, i: number) => {
+              const isSelected = selectedImageUrl === item.url;
+              return (
+                <div
+                  key={i}
+                  className={`flex items-center justify-between text-xs py-1.5 px-2 rounded cursor-pointer transition-all duration-150 border-b border-border-light dark:border-zinc-800/40 last:border-0
+                    ${isSelected 
+                      ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-950 dark:text-indigo-200 font-medium' 
+                      : 'hover:bg-gray-50 dark:hover:bg-zinc-800/50 text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-200'
+                    }`}
+                  onClick={() => {
+                    const nextUrl = isSelected ? null : item.url;
+                    setSelectedImageUrl(nextUrl);
+                    highlightImageOnPage(nextUrl, true);
+                  }}
+                  onMouseEnter={() => {
+                    highlightImageOnPage(item.url, false);
+                  }}
+                  onMouseLeave={() => {
+                    highlightImageOnPage(isSelected ? item.url : selectedImageUrl, false);
+                  }}
+                >
+                  <span className="truncate max-w-[60%]">
+                    {item.url.split('/').pop()?.split('?')[0] || item.url}
+                  </span>
+                  <span className="font-medium tabular-nums flex-shrink-0">{formatBytes(item.size)}</span>
+                </div>
+              );
+            })}
           </div>
         </SectionCard>
       )}
