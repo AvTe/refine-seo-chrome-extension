@@ -200,23 +200,23 @@ export default function AIActionCenter() {
   };
 
   return (
-    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-white">
+    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-bg">
       {/* Header */}
       <div>
-        <h1 className="text-lg font-bold text-gray-900 flex items-center gap-1.5">
-          <Sparkles size={18} className="text-primary-dark" />
+        <h1 className="text-lg font-bold text-gray-900 dark:text-zinc-100 flex items-center gap-1.5">
+          <Sparkles size={18} className="text-primary-dark dark:text-primary-light" />
           AI Action Center
         </h1>
-        <p className="text-xs text-gray-400 mt-0.5">Generate and implement instant SEO fixes</p>
+        <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">Generate and implement instant SEO fixes</p>
       </div>
 
       {/* Gemini API state notice */}
       {!apiKey && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex gap-2.5 items-start">
-          <AlertCircle size={16} className="text-amber-600 mt-0.5 flex-shrink-0" />
+        <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg flex gap-2.5 items-start">
+          <AlertCircle size={16} className="text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="text-xs font-semibold text-amber-800">Local Rule Fallbacks Active</p>
-            <p className="text-2xs text-amber-600 mt-0.5">
+            <p className="text-xs font-semibold text-amber-800 dark:text-amber-400">Local Rule Fallbacks Active</p>
+            <p className="text-2xs text-amber-600 dark:text-amber-500 mt-0.5">
               Generating smart template suggestions. Configure your <strong>Gemini API key</strong> in the Settings panel for custom generative AI output.
             </p>
           </div>
@@ -229,21 +229,21 @@ export default function AIActionCenter() {
       <SectionCard title="Optimize Meta Title">
         <div className="space-y-3">
           <div className="text-xs space-y-1">
-            <span className="text-gray-400 font-semibold uppercase flex items-center gap-1"><Type size={11} /> Current Title</span>
-            <p className="text-gray-700 bg-gray-50 p-2 rounded break-all border border-gray-100 font-mono text-2xs">
+            <span className="text-gray-400 dark:text-zinc-500 font-semibold uppercase flex items-center gap-1"><Type size={11} /> Current Title</span>
+            <p className="text-gray-700 dark:text-zinc-300 bg-gray-50 dark:bg-zinc-900 p-2 rounded break-all border border-gray-100 dark:border-zinc-800 font-mono text-2xs">
               {analysis.seo.title.value || <span className="text-red-400 italic">None</span>}
             </p>
           </div>
 
           {generations.title && (
-            <div className="text-xs space-y-1 bg-purple-50/30 border border-purple-100 p-2 rounded animate-fade-in">
-              <span className="text-primary-dark font-semibold uppercase">Suggested Title</span>
-              <p className="text-gray-800 font-medium break-all">{generations.title}</p>
-              <div className="flex items-center justify-between pt-1 border-t border-purple-100/50 mt-1">
-                <span className="text-3xs text-gray-400">{generations.title.length} characters (Optimal: 30-60)</span>
+            <div className="text-xs space-y-1 bg-purple-50/30 dark:bg-purple-950/10 border border-purple-100 dark:border-purple-900/30 p-2 rounded animate-fade-in">
+              <span className="text-primary-dark dark:text-primary-light font-semibold uppercase">Suggested Title</span>
+              <p className="text-gray-800 dark:text-zinc-200 font-medium break-all">{generations.title}</p>
+              <div className="flex items-center justify-between pt-1 border-t border-purple-100/50 dark:border-purple-900/20 mt-1">
+                <span className="text-3xs text-gray-400 dark:text-zinc-550">{generations.title.length} characters (Optimal: 30-60)</span>
                 <button
                   onClick={() => copyToClipboard(generations.title!, 'title')}
-                  className="text-primary hover:text-primary-dark flex items-center gap-0.5 text-2xs font-semibold"
+                  className="text-primary hover:text-primary-dark dark:hover:text-primary-light flex items-center gap-0.5 text-2xs font-semibold"
                 >
                   {copiedKey === 'title' ? <Check size={10} /> : <Copy size={10} />}
                   {copiedKey === 'title' ? 'Copied' : 'Copy'}
@@ -259,7 +259,7 @@ export default function AIActionCenter() {
               getFallbackTitle
             )}
             disabled={loadingMap.title}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark dark:hover:bg-primary-light/90 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
           >
             <Sparkles size={12} className={loadingMap.title ? 'animate-spin' : ''} />
             <span>{loadingMap.title ? 'Optimizing...' : generations.title ? 'Regenerate' : 'Generate Optimized Title'}</span>
@@ -271,21 +271,21 @@ export default function AIActionCenter() {
       <SectionCard title="Generate Meta Description">
         <div className="space-y-3">
           <div className="text-xs space-y-1">
-            <span className="text-gray-400 font-semibold uppercase flex items-center gap-1"><FileText size={11} /> Current Description</span>
-            <p className="text-gray-700 bg-gray-50 p-2 rounded break-all border border-gray-100 text-2xs font-mono">
+            <span className="text-gray-400 dark:text-zinc-550 font-semibold uppercase flex items-center gap-1"><FileText size={11} /> Current Description</span>
+            <p className="text-gray-700 dark:text-zinc-300 bg-gray-50 dark:bg-zinc-900 p-2 rounded break-all border border-gray-100 dark:border-zinc-800 text-2xs font-mono">
               {analysis.seo.metaDescription.value || <span className="text-red-400 italic">None</span>}
             </p>
           </div>
 
           {generations.description && (
-            <div className="text-xs space-y-1 bg-purple-50/30 border border-purple-100 p-2 rounded animate-fade-in">
-              <span className="text-primary-dark font-semibold uppercase">Suggested Description</span>
-              <p className="text-gray-800 break-all text-2xs leading-relaxed">{generations.description}</p>
-              <div className="flex items-center justify-between pt-1 border-t border-purple-100/50 mt-1">
-                <span className="text-3xs text-gray-400">{generations.description.length} characters (Optimal: 120-160)</span>
+            <div className="text-xs space-y-1 bg-purple-50/30 dark:bg-purple-950/10 border border-purple-100 dark:border-purple-900/30 p-2 rounded animate-fade-in">
+              <span className="text-primary-dark dark:text-primary-light font-semibold uppercase">Suggested Description</span>
+              <p className="text-gray-800 dark:text-zinc-200 break-all text-2xs leading-relaxed">{generations.description}</p>
+              <div className="flex items-center justify-between pt-1 border-t border-purple-100/50 dark:border-purple-900/20 mt-1">
+                <span className="text-3xs text-gray-400 dark:text-zinc-500">{generations.description.length} characters (Optimal: 120-160)</span>
                 <button
                   onClick={() => copyToClipboard(generations.description!, 'desc')}
-                  className="text-primary hover:text-primary-dark flex items-center gap-0.5 text-2xs font-semibold"
+                  className="text-primary hover:text-primary-dark dark:hover:text-primary-light flex items-center gap-0.5 text-2xs font-semibold"
                 >
                   {copiedKey === 'desc' ? <Check size={10} /> : <Copy size={10} />}
                   {copiedKey === 'desc' ? 'Copied' : 'Copy'}
@@ -301,7 +301,7 @@ export default function AIActionCenter() {
               getFallbackDescription
             )}
             disabled={loadingMap.description}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark dark:hover:bg-primary-light/90 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
           >
             <Sparkles size={12} className={loadingMap.description ? 'animate-spin' : ''} />
             <span>{loadingMap.description ? 'Optimizing...' : generations.description ? 'Regenerate' : 'Generate Meta Description'}</span>
@@ -313,17 +313,17 @@ export default function AIActionCenter() {
       <SectionCard title="Generate FAQ Schema">
         <div className="space-y-3">
           {generations.faqSchema && (
-            <div className="text-xs space-y-1 bg-purple-50/30 border border-purple-100 p-2 rounded animate-fade-in">
-              <span className="text-primary-dark font-semibold uppercase flex items-center gap-1"><FileJson size={11} /> FAQ Schema (JSON-LD)</span>
+            <div className="text-xs space-y-1 bg-purple-50/30 dark:bg-purple-950/10 border border-purple-100 dark:border-purple-900/30 p-2 rounded animate-fade-in">
+              <span className="text-primary-dark dark:text-primary-light font-semibold uppercase flex items-center gap-1"><FileJson size={11} /> FAQ Schema (JSON-LD)</span>
               <textarea
                 value={generations.faqSchema}
                 readOnly
-                className="w-full h-32 bg-white border border-border rounded p-1.5 font-mono text-3xs focus:outline-none"
+                className="w-full h-32 bg-white dark:bg-zinc-900 border border-border dark:border-zinc-800 rounded p-1.5 font-mono text-3xs focus:outline-none text-gray-800 dark:text-zinc-300"
               />
               <div className="flex items-center justify-end mt-1">
                 <button
                   onClick={() => copyToClipboard(generations.faqSchema!, 'faq')}
-                  className="text-primary hover:text-primary-dark flex items-center gap-0.5 text-2xs font-semibold"
+                  className="text-primary hover:text-primary-dark dark:hover:text-primary-light flex items-center gap-0.5 text-2xs font-semibold"
                 >
                   {copiedKey === 'faq' ? <Check size={10} /> : <Copy size={10} />}
                   {copiedKey === 'faq' ? 'Copy JSON-LD' : 'Copy JSON-LD'}
@@ -339,7 +339,7 @@ export default function AIActionCenter() {
               getFallbackFAQSchema
             )}
             disabled={loadingMap.faqSchema}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark dark:hover:bg-primary-light/90 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
           >
             <FileJson size={12} className={loadingMap.faqSchema ? 'animate-spin' : ''} />
             <span>{loadingMap.faqSchema ? 'Structuring FAQ...' : generations.faqSchema ? 'Regenerate Schema' : 'Create FAQ Schema'}</span>
@@ -352,17 +352,17 @@ export default function AIActionCenter() {
         <SectionCard title="Generate Product Schema">
           <div className="space-y-3">
             {generations.productSchema && (
-              <div className="text-xs space-y-1 bg-purple-50/30 border border-purple-100 p-2 rounded animate-fade-in">
-                <span className="text-primary-dark font-semibold uppercase flex items-center gap-1"><FileJson size={11} /> Product Schema (JSON-LD)</span>
+              <div className="text-xs space-y-1 bg-purple-50/30 dark:bg-purple-950/10 border border-purple-100 dark:border-purple-900/30 p-2 rounded animate-fade-in">
+                <span className="text-primary-dark dark:text-primary-light font-semibold uppercase flex items-center gap-1"><FileJson size={11} /> Product Schema (JSON-LD)</span>
                 <textarea
                   value={generations.productSchema}
                   readOnly
-                  className="w-full h-32 bg-white border border-border rounded p-1.5 font-mono text-3xs focus:outline-none"
+                  className="w-full h-32 bg-white dark:bg-zinc-900 border border-border dark:border-zinc-800 rounded p-1.5 font-mono text-3xs focus:outline-none text-gray-808 dark:text-zinc-300"
                 />
                 <div className="flex items-center justify-end mt-1">
                   <button
                     onClick={() => copyToClipboard(generations.productSchema!, 'product')}
-                    className="text-primary hover:text-primary-dark flex items-center gap-0.5 text-2xs font-semibold"
+                    className="text-primary hover:text-primary-dark dark:hover:text-primary-light flex items-center gap-0.5 text-2xs font-semibold"
                   >
                     {copiedKey === 'product' ? <Check size={10} /> : <Copy size={10} />}
                     {copiedKey === 'product' ? 'Copy JSON-LD' : 'Copy JSON-LD'}
@@ -378,7 +378,7 @@ export default function AIActionCenter() {
                 getFallbackProductSchema
               )}
               disabled={loadingMap.productSchema}
-              className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark dark:hover:bg-primary-light/90 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
             >
               <FileJson size={12} className={loadingMap.productSchema ? 'animate-spin' : ''} />
               <span>{loadingMap.productSchema ? 'Structuring Product...' : generations.productSchema ? 'Regenerate Schema' : 'Create Product Schema'}</span>
@@ -392,15 +392,15 @@ export default function AIActionCenter() {
         <SectionCard title="Generate Image Alt Texts" badge={<span className="badge badge-danger">{analysis.seo.images.withoutAlt}</span>}>
           <div className="space-y-3">
             {generations.altTexts && generations.altTexts.length > 0 && (
-              <div className="space-y-2 max-h-48 overflow-y-auto bg-purple-50/20 p-2 border border-purple-100 rounded text-2xs animate-slide-up">
+              <div className="space-y-2 max-h-48 overflow-y-auto bg-purple-50/20 dark:bg-purple-950/10 p-2 border border-purple-100 dark:border-purple-900/20 rounded text-2xs animate-slide-up">
                 {generations.altTexts.map((alt, idx) => (
-                  <div key={idx} className="flex flex-col gap-1 border-b border-purple-100/50 pb-2 last:border-0 last:pb-0">
-                    <span className="text-gray-400 font-mono truncate flex items-center gap-1"><Tag size={10} /> {alt.src.split('/').pop()}</span>
+                  <div key={idx} className="flex flex-col gap-1 border-b border-purple-100/50 dark:border-purple-900/20 pb-2 last:border-0 last:pb-0">
+                    <span className="text-gray-400 dark:text-zinc-500 font-mono truncate flex items-center gap-1"><Tag size={10} /> {alt.src.split('/').pop()}</span>
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-gray-800 font-medium italic">"{alt.suggestedAlt}"</p>
+                      <p className="text-gray-800 dark:text-zinc-250 font-medium italic">"{alt.suggestedAlt}"</p>
                       <button
                         onClick={() => copyToClipboard(alt.suggestedAlt, `alt_${idx}`)}
-                        className="text-primary hover:text-primary-dark flex-shrink-0"
+                        className="text-primary hover:text-primary-dark dark:hover:text-primary-light flex-shrink-0"
                       >
                         {copiedKey === `alt_${idx}` ? <Check size={10} /> : <Copy size={10} />}
                       </button>
@@ -417,7 +417,7 @@ export default function AIActionCenter() {
                 getFallbackAltTexts
               )}
               disabled={loadingMap.altTexts}
-              className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark dark:hover:bg-primary-light/90 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
             >
               <Sparkles size={12} className={loadingMap.altTexts ? 'animate-spin' : ''} />
               <span>{loadingMap.altTexts ? 'Describing images...' : 'Generate Alt Text Suggestions'}</span>
@@ -430,15 +430,15 @@ export default function AIActionCenter() {
       <SectionCard title="Heading Structure Actions">
         <div className="space-y-3">
           {generations.headingGuide ? (
-            <div className="text-xs space-y-1.5 bg-purple-50/30 border border-purple-100 p-2.5 rounded animate-fade-in">
-              <span className="text-primary-dark font-semibold uppercase flex items-center gap-1"><AlertTriangle size={11} /> Hierarchy Checklist</span>
-              <pre className="whitespace-pre-wrap font-sans text-gray-700 text-2xs leading-relaxed">
+            <div className="text-xs space-y-1.5 bg-purple-50/30 dark:bg-purple-950/10 border border-purple-100 dark:border-purple-900/30 p-2.5 rounded animate-fade-in">
+              <span className="text-primary-dark dark:text-primary-light font-semibold uppercase flex items-center gap-1"><AlertTriangle size={11} /> Hierarchy Checklist</span>
+              <pre className="whitespace-pre-wrap font-sans text-gray-700 dark:text-zinc-300 text-2xs leading-relaxed">
                 {generations.headingGuide}
               </pre>
-              <div className="flex items-center justify-end mt-1 pt-1 border-t border-purple-100/50">
+              <div className="flex items-center justify-end mt-1 pt-1 border-t border-purple-100/50 dark:border-purple-900/20">
                 <button
                   onClick={() => copyToClipboard(generations.headingGuide!, 'headings')}
-                  className="text-primary hover:text-primary-dark flex items-center gap-0.5 text-2xs font-semibold"
+                  className="text-primary hover:text-primary-dark dark:hover:text-primary-light flex items-center gap-0.5 text-2xs font-semibold"
                 >
                   {copiedKey === 'headings' ? <Check size={10} /> : <Copy size={10} />}
                   {copiedKey === 'headings' ? 'Copied' : 'Copy Guide'}
@@ -446,8 +446,8 @@ export default function AIActionCenter() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-100 rounded text-2xs text-gray-500">
-              <HelpCircle size={14} className="text-gray-400 flex-shrink-0" />
+            <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded text-2xs text-gray-500 dark:text-zinc-400">
+              <HelpCircle size={14} className="text-gray-400 dark:text-zinc-500 flex-shrink-0" />
               <p>Audit of tags H1 - H6 headings nesting patterns for structural hierarchy checks.</p>
             </div>
           )}
@@ -459,7 +459,7 @@ export default function AIActionCenter() {
               getFallbackHeadingGuide
             )}
             disabled={loadingMap.headingGuide}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-primary hover:bg-primary-dark dark:hover:bg-primary-light/90 text-white font-semibold text-xs rounded-md transition-colors disabled:opacity-50"
           >
             <Sparkles size={12} className={loadingMap.headingGuide ? 'animate-spin' : ''} />
             <span>{loadingMap.headingGuide ? 'Analyzing Headings...' : 'Analyze Heading Hierarchy'}</span>

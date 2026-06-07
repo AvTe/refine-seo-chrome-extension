@@ -21,31 +21,31 @@ export default function AccessibilityView() {
         : 'badge-danger';
 
   return (
-    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up">
+    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-bg">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">Accessibility</h1>
-          <p className="text-xs text-gray-400 mt-0.5">{analysis.site.hostname}</p>
+          <h1 className="text-lg font-bold text-gray-900 dark:text-zinc-100">Accessibility</h1>
+          <p className="text-xs text-gray-400 dark:text-zinc-550 mt-0.5">{analysis.site.hostname}</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-2xl font-bold tabular-nums" style={{ color }}>
             {score}
           </span>
-          <span className="text-xs text-gray-400">/ 100</span>
+          <span className="text-xs text-gray-400 dark:text-zinc-500">/ 100</span>
         </div>
       </div>
 
       {/* WCAG Status */}
-      <div className="card">
+      <div className="card border border-border dark:border-zinc-800 bg-card">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Eye size={20} className="text-primary-dark" />
+              <Eye size={20} className="text-primary-dark dark:text-primary-light" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">WCAG Assessment</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100">WCAG Assessment</p>
+              <p className="text-xs text-gray-500 dark:text-zinc-400">
                 {a11y.errorCount} errors · {a11y.warningCount} warnings
               </p>
             </div>
@@ -56,21 +56,21 @@ export default function AccessibilityView() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="p-3 rounded-lg border border-red-200 bg-red-50">
+        <div className="p-3 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20">
           <div className="flex items-center gap-2 mb-1">
             <AlertCircle size={14} className="text-red-500" />
-            <span className="text-xs font-medium text-red-700">Errors</span>
+            <span className="text-xs font-medium text-red-700 dark:text-red-400">Errors</span>
           </div>
-          <p className="text-xl font-bold text-red-600 tabular-nums">
+          <p className="text-xl font-bold text-red-600 dark:text-red-400 tabular-nums">
             {a11y.errorCount}
           </p>
         </div>
-        <div className="p-3 rounded-lg border border-amber-200 bg-amber-50">
+        <div className="p-3 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/20">
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle size={14} className="text-amber-500" />
-            <span className="text-xs font-medium text-amber-700">Warnings</span>
+            <span className="text-xs font-medium text-amber-700 dark:text-amber-400">Warnings</span>
           </div>
-          <p className="text-xl font-bold text-amber-600 tabular-nums">
+          <p className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">
             {a11y.warningCount}
           </p>
         </div>
@@ -88,7 +88,7 @@ export default function AccessibilityView() {
             {a11y.issues.map((issue, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 py-3 border-b border-border-light last:border-0"
+                className="flex items-start gap-3 py-3 border-b border-border-light dark:border-zinc-800/40 last:border-0"
               >
                 {issue.type === 'error' ? (
                   <AlertCircle
@@ -102,7 +102,7 @@ export default function AccessibilityView() {
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-700">{issue.message}</p>
+                  <p className="text-sm text-gray-700 dark:text-zinc-300">{issue.message}</p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <span className="badge badge-neutral text-2xs">
                       WCAG {issue.wcag}
@@ -111,7 +111,7 @@ export default function AccessibilityView() {
                       {issue.rule}
                     </span>
                     {issue.count > 1 && (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-400 dark:text-zinc-500">
                         × {issue.count}
                       </span>
                     )}
@@ -129,12 +129,12 @@ export default function AccessibilityView() {
           </div>
         </SectionCard>
       ) : (
-        <div className="card flex flex-col items-center justify-center py-12 text-center">
-          <Eye size={32} className="text-green-300 mb-3" />
-          <p className="text-sm font-medium text-green-600">
+        <div className="card border border-border dark:border-zinc-800 bg-card flex flex-col items-center justify-center py-12 text-center">
+          <Eye size={32} className="text-green-300 dark:text-green-700 mb-3" />
+          <p className="text-sm font-medium text-green-600 dark:text-green-400">
             No Issues Found
           </p>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">
             This page passes basic accessibility checks.
           </p>
         </div>

@@ -29,8 +29,8 @@ export default function SEOInspector() {
       {/* Header with Score */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">SEO Inspector</h1>
-          <p className="text-xs text-gray-400 mt-0.5">{analysis.site.hostname}</p>
+          <h1 className="text-lg font-bold text-gray-900 dark:text-zinc-100">SEO Inspector</h1>
+          <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">{analysis.site.hostname}</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-2xl font-bold tabular-nums" style={{ color }}>{score}</span>
@@ -46,8 +46,8 @@ export default function SEOInspector() {
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
               activeTab === tab.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200'
             }`}
           >
             {tab.label}
@@ -114,11 +114,11 @@ function OnPageTab({ seo }: { seo: PageAnalysis['seo'] }) {
       {/* Title */}
       <SectionCard title="Title Tag">
         <div className="space-y-2">
-          <p className="text-sm text-gray-700 bg-surface p-2 rounded break-all">
+          <p className="text-sm text-gray-700 dark:text-zinc-300 bg-surface p-2 rounded break-all">
             {seo.title.value || <span className="text-red-400 italic">Missing</span>}
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-400">{seo.title.length} characters</span>
+            <span className="text-xs text-gray-400 dark:text-zinc-500">{seo.title.length} characters</span>
             <span className={`badge ${titleStatus === 'pass' ? 'badge-success' : titleStatus === 'fail' ? 'badge-danger' : 'badge-warning'}`}>
               {titleStatus === 'pass' ? '✓ Optimal' : titleStatus === 'fail' ? '✕ Missing' : '⚠ Length'}
             </span>
@@ -129,11 +129,11 @@ function OnPageTab({ seo }: { seo: PageAnalysis['seo'] }) {
       {/* Meta Description */}
       <SectionCard title="Meta Description">
         <div className="space-y-2">
-          <p className="text-sm text-gray-700 bg-surface p-2 rounded break-all">
+          <p className="text-sm text-gray-700 dark:text-zinc-300 bg-surface p-2 rounded break-all">
             {seo.metaDescription.value || <span className="text-red-400 italic">Missing</span>}
           </p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-400">{seo.metaDescription.length} characters</span>
+            <span className="text-xs text-gray-400 dark:text-zinc-500">{seo.metaDescription.length} characters</span>
             <span className={`badge ${descStatus === 'pass' ? 'badge-success' : descStatus === 'fail' ? 'badge-danger' : 'badge-warning'}`}>
               {descStatus === 'pass' ? '✓ Optimal' : descStatus === 'fail' ? '✕ Missing' : seo.metaDescription.length > 160 ? '⚠ Too Long' : '⚠ Too Short'}
             </span>
@@ -188,8 +188,8 @@ function OnPageTab({ seo }: { seo: PageAnalysis['seo'] }) {
                 key={i} 
                 className={`flex items-start gap-2 text-xs py-1.5 px-2 rounded cursor-pointer transition-all duration-150 group border-l-2
                   ${isSelected 
-                    ? 'bg-indigo-50 border-indigo-500 font-medium text-indigo-950' 
-                    : 'hover:bg-gray-50 text-gray-600 hover:text-gray-900 border-transparent'
+                    ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-500 font-medium text-indigo-950 dark:text-indigo-200' 
+                    : 'hover:bg-gray-50 dark:hover:bg-zinc-800/50 text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-200 border-transparent'
                   }`}
                 style={{ marginLeft: `${(h.level - 1) * 12}px` }}
                 onClick={() => {
@@ -207,7 +207,7 @@ function OnPageTab({ seo }: { seo: PageAnalysis['seo'] }) {
                 <span className={`badge flex-shrink-0 text-2xs transition-colors duration-150 py-0.5 px-1.5 h-4 min-h-0 font-semibold
                   ${isSelected 
                     ? 'bg-indigo-600 text-white' 
-                    : 'bg-neutral text-gray-500 group-hover:bg-gray-200'
+                    : 'bg-neutral dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 group-hover:bg-gray-200 dark:group-hover:bg-zinc-700'
                   }`}
                 >
                   {h.tag.toUpperCase()}
@@ -220,7 +220,7 @@ function OnPageTab({ seo }: { seo: PageAnalysis['seo'] }) {
           {seo.headings.length > 15 && (
             <button
               onClick={() => setShowAllHeadings(!showAllHeadings)}
-              className="text-xs text-indigo-600 hover:text-indigo-800 font-medium hover:underline mt-2 block w-full text-center py-1 bg-surface rounded border border-gray-100"
+              className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium hover:underline mt-2 block w-full text-center py-1 bg-surface rounded border border-gray-100 dark:border-zinc-800"
             >
               {showAllHeadings ? 'Show less' : `Show all ${seo.headings.length} headings`}
             </button>
@@ -253,15 +253,15 @@ function ContentTab({ seo }: { seo: PageAnalysis['seo'] }) {
         <div className="space-y-2">
           {seo.content.keywords.map((kw: { word: string; density: string }, i: number) => (
             <div key={i} className="flex items-center justify-between text-sm py-1">
-              <span className="text-gray-700">{kw.word}</span>
+              <span className="text-gray-700 dark:text-zinc-300">{kw.word}</span>
               <div className="flex items-center gap-3">
-                <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div className="w-16 h-1.5 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-primary rounded-full"
                     style={{ width: `${Math.min(100, parseFloat(kw.density) * 20)}%` }}
                   />
                 </div>
-                <span className="text-xs text-gray-400 tabular-nums w-10 text-right">
+                <span className="text-xs text-gray-400 dark:text-zinc-500 tabular-nums w-10 text-right">
                   {kw.density}%
                 </span>
               </div>
@@ -279,9 +279,9 @@ function ContentTab({ seo }: { seo: PageAnalysis['seo'] }) {
         />
         {seo.images.missingAlt.length > 0 && (
           <div className="mt-2 space-y-1">
-            <p className="text-xs text-gray-400 font-medium">Missing Alt Text:</p>
+            <p className="text-xs text-gray-400 dark:text-zinc-500 font-medium">Missing Alt Text:</p>
             {seo.images.missingAlt.slice(0, 5).map((img: { src: string }, i: number) => (
-              <p key={i} className="text-xs text-red-500 truncate pl-2">
+              <p key={i} className="text-xs text-red-500 dark:text-red-400 truncate pl-2">
                 {img.src}
               </p>
             ))}
@@ -386,8 +386,8 @@ function LinksTab({ seo }: { seo: PageAnalysis['seo'] }) {
       <div className="card space-y-3">
         <div className="flex justify-between items-center">
           <div>
-            <p className="text-xs font-semibold text-gray-900">Broken Link Checker</p>
-            <p className="text-3xs text-gray-400 mt-0.5">Audit HTTP status of all {uniqueLinks.length} unique page links</p>
+            <p className="text-xs font-semibold text-gray-900 dark:text-zinc-100">Broken Link Checker</p>
+            <p className="text-3xs text-gray-400 dark:text-zinc-500 mt-0.5">Audit HTTP status of all {uniqueLinks.length} unique page links</p>
           </div>
           <button
             onClick={runLinkAudit}
@@ -402,17 +402,17 @@ function LinksTab({ seo }: { seo: PageAnalysis['seo'] }) {
         {/* Audit Results stats */}
         {auditRan && !isAuditing && (
           <div className="grid grid-cols-3 gap-2 animate-fade-in pt-1">
-            <div className="p-2 border border-green-200 bg-green-50/50 rounded text-center">
-              <p className="text-sm font-bold text-green-700">{healthyCount}</p>
-              <p className="text-3xs text-green-600 font-medium">Healthy (200)</p>
+            <div className="p-2 border border-green-200 dark:border-green-900/50 bg-green-50/50 dark:bg-green-950/20 rounded text-center">
+              <p className="text-sm font-bold text-green-700 dark:text-green-400">{healthyCount}</p>
+              <p className="text-3xs text-green-600 dark:text-green-500 font-medium">Healthy (200)</p>
             </div>
-            <div className="p-2 border border-amber-200 bg-amber-50/50 rounded text-center">
-              <p className="text-sm font-bold text-amber-700">{redirectCount}</p>
-              <p className="text-3xs text-amber-600 font-medium">Redirects (3xx)</p>
+            <div className="p-2 border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-950/20 rounded text-center">
+              <p className="text-sm font-bold text-amber-700 dark:text-amber-400">{redirectCount}</p>
+              <p className="text-3xs text-amber-600 dark:text-amber-500 font-medium">Redirects (3xx)</p>
             </div>
-            <div className="p-2 border border-red-200 bg-red-50/50 rounded text-center">
-              <p className="text-sm font-bold text-red-700">{brokenCount}</p>
-              <p className="text-3xs text-red-600 font-medium">Broken (40x/50x)</p>
+            <div className="p-2 border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20 rounded text-center">
+              <p className="text-sm font-bold text-red-700 dark:text-red-400">{brokenCount}</p>
+              <p className="text-3xs text-red-600 dark:text-red-500 font-medium">Broken (40x/50x)</p>
             </div>
           </div>
         )}
@@ -443,21 +443,21 @@ function LinksTab({ seo }: { seo: PageAnalysis['seo'] }) {
               return (
                 <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-border-light last:border-0 min-w-0">
                   <div className="flex flex-col min-w-0 flex-1 mr-2">
-                    <span className="text-gray-700 truncate font-medium">
-                      {link.text ? link.text : <span className="text-gray-400 italic">[No Anchor Text]</span>}
+                    <span className="text-gray-700 dark:text-zinc-300 truncate font-medium">
+                      {link.text ? link.text : <span className="text-gray-400 dark:text-zinc-500 italic">[No Anchor Text]</span>}
                     </span>
                     {absUrl ? (
                       <a
                         href={absUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary-dark hover:underline truncate text-2xs flex items-center gap-0.5"
+                        className="text-primary-dark dark:text-primary-light hover:underline truncate text-2xs flex items-center gap-0.5"
                       >
                         {link.href}
                         <ExternalLink size={10} className="inline flex-shrink-0" />
                       </a>
                     ) : (
-                      <span className="text-gray-400 truncate text-2xs">{link.href}</span>
+                      <span className="text-gray-400 dark:text-zinc-500 truncate text-2xs">{link.href}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -479,21 +479,21 @@ function LinksTab({ seo }: { seo: PageAnalysis['seo'] }) {
               return (
                 <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-border-light last:border-0 min-w-0">
                   <div className="flex flex-col min-w-0 flex-1 mr-2">
-                    <span className="text-gray-700 truncate font-medium">
-                      {link.text ? link.text : <span className="text-gray-400 italic">[No Anchor Text]</span>}
+                    <span className="text-gray-700 dark:text-zinc-300 truncate font-medium">
+                      {link.text ? link.text : <span className="text-gray-400 dark:text-zinc-500 italic">[No Anchor Text]</span>}
                     </span>
                     {absUrl ? (
                       <a
                         href={absUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary-dark hover:underline truncate text-2xs flex items-center gap-0.5"
+                        className="text-primary-dark dark:text-primary-light hover:underline truncate text-2xs flex items-center gap-0.5"
                       >
                         {link.href}
                         <ExternalLink size={10} className="inline flex-shrink-0" />
                       </a>
                     ) : (
-                      <span className="text-gray-400 truncate text-2xs">{link.href}</span>
+                      <span className="text-gray-400 dark:text-zinc-500 truncate text-2xs">{link.href}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -537,9 +537,9 @@ function SchemaTab({ schema }: { schema: PageAnalysis['schema'] }) {
       )}
 
       {schema.count === 0 && (
-        <div className="card bg-amber-50 border-amber-200">
-          <p className="text-sm text-amber-800 font-medium">No structured data found</p>
-          <p className="text-xs text-amber-600 mt-1">
+        <div className="card bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/50">
+          <p className="text-sm text-amber-800 dark:text-amber-400 font-medium">No structured data found</p>
+          <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
             Adding JSON-LD structured data helps search engines understand your content better.
           </p>
         </div>

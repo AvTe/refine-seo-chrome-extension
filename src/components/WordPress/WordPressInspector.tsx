@@ -12,25 +12,25 @@ export default function WordPressInspector() {
   // Render Shopify view if shopify detected
   if (shopify?.detected) {
     return (
-      <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up">
+      <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-bg">
         {/* Header */}
         <div>
-          <h1 className="text-lg font-bold text-gray-900">Shopify Inspector</h1>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <h1 className="text-lg font-bold text-gray-900 dark:text-zinc-100">Shopify Inspector</h1>
+          <p className="text-xs text-gray-400 dark:text-zinc-550 mt-0.5">
             {analysis.site.hostname}
             {shopify.currency && <span> · Currency: {shopify.currency}</span>}
           </p>
         </div>
 
         {/* Shopify Detected Badge */}
-        <div className="card bg-primary/5 border-primary/20">
+        <div className="card bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Globe size={20} className="text-primary-dark" />
+              <Globe size={20} className="text-primary-dark dark:text-primary-light" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">Shopify Detected</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100">Shopify Detected</p>
+              <p className="text-xs text-gray-500 dark:text-zinc-400">
                 Theme: {shopify.theme?.name || 'Unknown'} · {shopify.appCount || 0} apps detected
               </p>
             </div>
@@ -43,9 +43,9 @@ export default function WordPressInspector() {
             <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
               <Palette size={16} className="text-primary" />
               <div>
-                <p className="text-sm font-medium text-gray-900 capitalize">{shopify.theme.name}</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-zinc-200 capitalize">{shopify.theme.name}</p>
                 {shopify.theme.id && (
-                  <p className="text-xs text-gray-400">Theme ID: {shopify.theme.id}</p>
+                  <p className="text-xs text-gray-400 dark:text-zinc-500">Theme ID: {shopify.theme.id}</p>
                 )}
               </div>
             </div>
@@ -57,15 +57,15 @@ export default function WordPressInspector() {
           {shopify.apps && shopify.apps.length > 0 ? (
             <div className="space-y-0">
               {shopify.apps.map((app, i) => (
-                <div key={i} className="flex items-center gap-2.5 py-2 border-b border-border-light last:border-0">
-                  <Puzzle size={14} className="text-gray-400 flex-shrink-0" />
-                  <span className="text-sm text-gray-700 flex-1">{app.name}</span>
+                <div key={i} className="flex items-center gap-2.5 py-2 border-b border-border-light dark:border-zinc-800/40 last:border-0">
+                  <Puzzle size={14} className="text-gray-400 dark:text-zinc-500 flex-shrink-0" />
+                  <span className="text-sm text-gray-700 dark:text-zinc-300 flex-1">{app.name}</span>
                   <span className="badge badge-success text-2xs">Active</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-gray-400 italic">No standard Shopify apps detected from front-end signatures.</p>
+            <p className="text-xs text-gray-400 dark:text-zinc-500 italic">No standard Shopify apps detected from front-end signatures.</p>
           )}
         </SectionCard>
       </div>
@@ -74,37 +74,37 @@ export default function WordPressInspector() {
 
   if (!wp.detected) {
     return (
-      <div className="flex-1 p-5 overflow-y-auto animate-slide-up">
-        <h1 className="text-lg font-bold text-gray-900 mb-4">CMS Inspector</h1>
-        <div className="card flex flex-col items-center justify-center py-12 text-center">
-          <Globe size={32} className="text-gray-300 mb-3" />
-          <p className="text-sm font-medium text-gray-500">CMS Platform Not Detected</p>
-          <p className="text-xs text-gray-400 mt-1">This website doesn't appear to be using WordPress or Shopify.</p>
+      <div className="flex-1 p-5 overflow-y-auto animate-slide-up bg-bg">
+        <h1 className="text-lg font-bold text-gray-900 dark:text-zinc-100 mb-4">CMS Inspector</h1>
+        <div className="card border border-border dark:border-zinc-800 flex flex-col items-center justify-center py-12 text-center bg-card">
+          <Globe size={32} className="text-gray-300 dark:text-zinc-700 mb-3" />
+          <p className="text-sm font-medium text-gray-500 dark:text-zinc-400">CMS Platform Not Detected</p>
+          <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1">This website doesn't appear to be using WordPress or Shopify.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up">
+    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-bg">
       {/* Header */}
       <div>
-        <h1 className="text-lg font-bold text-gray-900">WordPress</h1>
-        <p className="text-xs text-gray-400 mt-0.5">
+        <h1 className="text-lg font-bold text-gray-900 dark:text-zinc-100">WordPress</h1>
+        <p className="text-xs text-gray-400 dark:text-zinc-550 mt-0.5">
           {analysis.site.hostname}
           {wp.wpVersion && <span> · WordPress {wp.wpVersion}</span>}
         </p>
       </div>
 
       {/* WordPress Detected Badge */}
-      <div className="card bg-primary/5 border-primary/20">
+      <div className="card bg-primary/5 dark:bg-primary/10 border-primary/20 dark:border-primary/30">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Globe size={20} className="text-primary-dark" />
+            <Globe size={20} className="text-primary-dark dark:text-primary-light" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900">WordPress Detected</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100">WordPress Detected</p>
+            <p className="text-xs text-gray-500 dark:text-zinc-400">
               Version {wp.wpVersion || 'Unknown'} · {wp.pluginCount || 0} plugins · {wp.issues?.length || 0} issues
             </p>
           </div>
@@ -116,9 +116,9 @@ export default function WordPressInspector() {
         <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
           <Palette size={16} className="text-primary" />
           <div>
-            <p className="text-sm font-medium text-gray-900 capitalize">{wp.theme?.active || 'Unknown'}</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-zinc-200 capitalize">{wp.theme?.active || 'Unknown'}</p>
             {wp.theme?.hasChildTheme && (
-              <p className="text-xs text-gray-400">Child theme active</p>
+              <p className="text-xs text-gray-400 dark:text-zinc-500">Child theme active</p>
             )}
           </div>
         </div>
@@ -128,9 +128,9 @@ export default function WordPressInspector() {
       <SectionCard title="Plugins" badge={<span className="badge badge-info">{wp.pluginCount || 0}</span>}>
         <div className="space-y-0">
           {wp.plugins?.map((plugin: { name: string }, i: number) => (
-            <div key={i} className="flex items-center gap-2.5 py-2 border-b border-border-light last:border-0">
-              <Puzzle size={14} className="text-gray-400 flex-shrink-0" />
-              <span className="text-sm text-gray-700 flex-1">{plugin.name}</span>
+            <div key={i} className="flex items-center gap-2.5 py-2 border-b border-border-light dark:border-zinc-800/40 last:border-0">
+              <Puzzle size={14} className="text-gray-400 dark:text-zinc-500 flex-shrink-0" />
+              <span className="text-sm text-gray-700 dark:text-zinc-300 flex-1">{plugin.name}</span>
               <span className="badge badge-success text-2xs">Detected</span>
             </div>
           ))}
@@ -154,7 +154,7 @@ export default function WordPressInspector() {
         <SectionCard title="Recommendations" badge={<span className="badge badge-warning">{wp.issues.length}</span>}>
           <div className="space-y-2">
             {wp.issues.map((issue: { type: string; message: string; severity: string }, i: number) => (
-              <div key={i} className="flex items-start gap-2.5 py-2 border-b border-border-light last:border-0">
+              <div key={i} className="flex items-start gap-2.5 py-2 border-b border-border-light dark:border-zinc-800/40 last:border-0">
                 {issue.type === 'security' ? (
                   <ShieldCheck size={14} className="text-red-400 mt-0.5 flex-shrink-0" />
                 ) : issue.type === 'performance' ? (
@@ -163,7 +163,7 @@ export default function WordPressInspector() {
                   <AlertTriangle size={14} className="text-gray-400 mt-0.5 flex-shrink-0" />
                 )}
                 <div>
-                  <p className="text-sm text-gray-700">{issue.message}</p>
+                  <p className="text-sm text-gray-700 dark:text-zinc-300">{issue.message}</p>
                   <span className={`badge mt-1 ${issue.severity === 'high' ? 'badge-danger' : issue.severity === 'medium' ? 'badge-warning' : 'badge-neutral'} text-2xs`}>
                     {issue.severity}
                   </span>

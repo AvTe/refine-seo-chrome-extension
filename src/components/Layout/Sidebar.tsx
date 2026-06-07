@@ -61,7 +61,7 @@ export default function Sidebar() {
       )}
 
       <aside
-        className={`h-screen border-r border-border bg-white flex flex-col overflow-hidden transition-all duration-200 flex-shrink-0 ${
+        className={`h-screen border-r border-border bg-white dark:bg-zinc-950 flex flex-col overflow-hidden transition-all duration-200 flex-shrink-0 ${
           isSidebarOpen
             ? 'fixed md:static inset-y-0 left-0 z-50 w-[200px] shadow-lg md:shadow-none'
             : 'static w-[52px]'
@@ -72,17 +72,17 @@ export default function Sidebar() {
           <div className="flex items-center gap-2 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="w-6 h-6 rounded-md bg-primary/20 flex items-center justify-center flex-shrink-0 hover:bg-primary/30 transition-colors"
+              className="w-6 h-6 rounded-md bg-primary/20 dark:bg-primary/30 flex items-center justify-center flex-shrink-0 hover:bg-primary/30 dark:hover:bg-primary/40 transition-colors"
               title={isSidebarOpen ? "Collapse menu" : "Expand menu"}
             >
-              <span className="text-primary-dark text-xs font-bold">R</span>
+              <span className="text-primary-dark dark:text-primary-light text-xs font-bold">R</span>
             </button>
-            {isSidebarOpen && <span className="text-sm font-semibold text-gray-900 truncate">Refine SEO</span>}
+            {isSidebarOpen && <span className="text-sm font-semibold text-gray-900 dark:text-white truncate">Refine SEO</span>}
           </div>
           {isSidebarOpen && (
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="md:hidden p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
+              className="md:hidden p-1 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-800"
               title="Close sidebar"
             >
               <X size={16} />
@@ -93,9 +93,9 @@ export default function Sidebar() {
         {/* Current Site */}
         {isSidebarOpen && (
           <div className="px-3 py-2.5 border-b border-border">
-            <div className="flex items-center gap-2 px-2 py-1.5 bg-surface rounded-md">
-              <ExternalLink size={12} className="text-gray-400 flex-shrink-0" />
-              <span className="text-xs text-gray-600 truncate">{hostname}</span>
+            <div className="flex items-center gap-2 px-2 py-1.5 bg-surface dark:bg-zinc-900 rounded-md">
+              <ExternalLink size={12} className="text-gray-400 dark:text-zinc-500 flex-shrink-0" />
+              <span className="text-xs text-gray-600 dark:text-zinc-300 truncate">{hostname}</span>
             </div>
           </div>
         )}
@@ -112,9 +112,9 @@ export default function Sidebar() {
                   setIsSidebarOpen(false);
                 }
               }}
-              className={`w-full flex items-center rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer ${
+              className={`w-full nav-item ${
                 isSidebarOpen ? 'px-3 py-2 gap-2.5 justify-start' : 'p-2.5 justify-center'
-              } ${activeSection === item.id ? 'bg-primary/10 text-primary-dark font-semibold' : 'text-gray-500 hover:bg-surface-2 hover:text-gray-700'}`}
+              } ${activeSection === item.id ? 'active font-semibold' : ''}`}
               title={!isSidebarOpen ? item.label : undefined}
             >
               <span className="flex-shrink-0">{item.icon}</span>
@@ -124,11 +124,11 @@ export default function Sidebar() {
         </nav>
 
         {/* Rescan Button */}
-        <div className="px-2 pb-3 flex justify-center border-t border-border-light pt-3">
+        <div className="px-2 pb-3 flex justify-center border-t border-border-light dark:border-zinc-800 pt-3">
           <button
             onClick={requestAnalysis}
             disabled={isLoading}
-            className={`flex items-center justify-center bg-primary/10 hover:bg-primary/20 text-primary-dark transition-colors disabled:opacity-50 ${
+            className={`flex items-center justify-center bg-primary/10 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/30 text-primary-dark dark:text-primary-light transition-colors disabled:opacity-50 ${
               isSidebarOpen ? 'w-full gap-2 px-3 py-2 text-sm font-medium rounded-lg' : 'w-8 h-8 rounded-full'
             }`}
             title="Rescan Website"

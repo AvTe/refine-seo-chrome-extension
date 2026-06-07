@@ -28,16 +28,16 @@ export default function PerformanceView() {
   ];
 
   return (
-    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up">
+    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-bg">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">Performance</h1>
-          <p className="text-xs text-gray-400 mt-0.5">{analysis.site.hostname}</p>
+          <h1 className="text-lg font-bold text-gray-900 dark:text-zinc-100">Performance</h1>
+          <p className="text-xs text-gray-400 dark:text-zinc-550 mt-0.5">{analysis.site.hostname}</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-2xl font-bold tabular-nums" style={{ color }}>{score}</span>
-          <span className="text-xs text-gray-400">/ 100</span>
+          <span className="text-xs text-gray-400 dark:text-zinc-500">/ 100</span>
         </div>
       </div>
 
@@ -52,9 +52,9 @@ export default function PerformanceView() {
       {/* Core Web Vitals (LCP, CLS, INP) */}
       <SectionCard title="Core Web Vitals (Real User Metrics)" collapsible={false}>
         <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="p-2.5 rounded-lg border border-border bg-surface">
-            <p className="text-3xs font-bold text-gray-400 uppercase tracking-wide">LCP</p>
-            <p className="text-xs font-extrabold text-gray-800 mt-1">
+          <div className="p-2.5 rounded-lg border border-border dark:border-zinc-800 bg-surface">
+            <p className="text-3xs font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wide">LCP</p>
+            <p className="text-xs font-extrabold text-gray-800 dark:text-zinc-200 mt-1">
               {perf.timings.lcp ? formatMs(perf.timings.lcp) : '—'}
             </p>
             <span className={`badge mt-1.5 text-3xs ${
@@ -70,9 +70,9 @@ export default function PerformanceView() {
             </span>
           </div>
 
-          <div className="p-2.5 rounded-lg border border-border bg-surface">
-            <p className="text-3xs font-bold text-gray-400 uppercase tracking-wide">CLS</p>
-            <p className="text-xs font-extrabold text-gray-800 mt-1">
+          <div className="p-2.5 rounded-lg border border-border dark:border-zinc-800 bg-surface">
+            <p className="text-3xs font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wide">CLS</p>
+            <p className="text-xs font-extrabold text-gray-800 dark:text-zinc-200 mt-1">
               {perf.timings.cls !== undefined && perf.timings.cls !== null ? perf.timings.cls : '—'}
             </p>
             <span className={`badge mt-1.5 text-3xs ${
@@ -88,9 +88,9 @@ export default function PerformanceView() {
             </span>
           </div>
 
-          <div className="p-2.5 rounded-lg border border-border bg-surface">
-            <p className="text-3xs font-bold text-gray-400 uppercase tracking-wide">INP</p>
-            <p className="text-xs font-extrabold text-gray-800 mt-1">
+          <div className="p-2.5 rounded-lg border border-border dark:border-zinc-800 bg-surface">
+            <p className="text-3xs font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wide">INP</p>
+            <p className="text-xs font-extrabold text-gray-800 dark:text-zinc-200 mt-1">
               {perf.timings.inp ? formatMs(perf.timings.inp) : '—'}
             </p>
             <span className={`badge mt-1.5 text-3xs ${
@@ -106,7 +106,7 @@ export default function PerformanceView() {
             </span>
           </div>
         </div>
-        <p className="text-3xs text-gray-400 mt-2 text-center">
+        <p className="text-3xs text-gray-400 dark:text-zinc-555 mt-2 text-center">
           LCP: Largest Contentful Paint · CLS: Cumulative Layout Shift · INP: Interaction to Next Paint
         </p>
       </SectionCard>
@@ -120,7 +120,7 @@ export default function PerformanceView() {
               <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#737373' }} width={40} />
               <Tooltip
                 formatter={(value: any) => [`${Math.round(Number(value || 0))} ms`, 'Duration']}
-                contentStyle={{ fontSize: 12, border: '1px solid #e5e5e5', borderRadius: 8, boxShadow: 'none' }}
+                contentStyle={{ fontSize: 12, border: '1px solid var(--border)', borderRadius: 8, backgroundColor: 'var(--card)', color: 'var(--text)', boxShadow: 'none' }}
               />
               <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={16}>
                 {timingData.map((entry, i) => (
@@ -138,13 +138,13 @@ export default function PerformanceView() {
           {resourceData.map((res, i) => (
             <div key={i}>
               <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-gray-700">{res.name}</span>
+                <span className="text-gray-700 dark:text-zinc-300">{res.name}</span>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-400">{res.count} files</span>
-                  <span className="text-xs font-medium text-gray-600 tabular-nums w-16 text-right">{formatBytes(res.size)}</span>
+                  <span className="text-xs text-gray-400 dark:text-zinc-500">{res.count} files</span>
+                  <span className="text-xs font-medium text-gray-600 dark:text-zinc-400 tabular-nums w-16 text-right">{formatBytes(res.size)}</span>
                 </div>
               </div>
-              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary rounded-full transition-all duration-500"
                   style={{ width: `${perf.totalSize > 0 ? (res.size / perf.totalSize) * 100 : 0}%` }}
@@ -159,7 +159,7 @@ export default function PerformanceView() {
       <SectionCard title="DOM Metrics">
         <div className="grid grid-cols-2 gap-3">
           <div className="text-center p-3 bg-surface rounded-lg">
-            <p className={`stat-value text-lg ${perf.domSize > 1500 ? 'text-amber-600' : 'text-gray-900'}`}>
+            <p className={`stat-value text-lg ${perf.domSize > 1500 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-zinc-150'}`}>
               {perf.domSize.toLocaleString()}
             </p>
             <p className="stat-label">Elements</p>
@@ -176,11 +176,11 @@ export default function PerformanceView() {
         <SectionCard title="Largest Images" defaultOpen={false}>
           <div className="space-y-1">
             {perf.resources.images.items.slice(0, 5).map((item: any, i: number) => (
-              <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-border-light last:border-0">
-                <span className="text-gray-600 truncate max-w-[60%]">
+              <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-border-light dark:border-zinc-800/40 last:border-0">
+                <span className="text-gray-600 dark:text-zinc-400 truncate max-w-[60%]">
                   {item.url.split('/').pop()?.split('?')[0] || item.url}
                 </span>
-                <span className="font-medium text-gray-800 tabular-nums">{formatBytes(item.size)}</span>
+                <span className="font-medium text-gray-800 dark:text-zinc-200 tabular-nums">{formatBytes(item.size)}</span>
               </div>
             ))}
           </div>
@@ -192,9 +192,9 @@ export default function PerformanceView() {
 
 function MetricCard({ label, value, threshold }: { label: string; value: string; threshold: 'good' | 'ok' | 'bad' }) {
   const colors = {
-    good: 'text-green-600 bg-green-50 border-green-200',
-    ok: 'text-amber-600 bg-amber-50 border-amber-200',
-    bad: 'text-red-600 bg-red-50 border-red-200',
+    good: 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900/30',
+    ok: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/30',
+    bad: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/30',
   };
 
   return (

@@ -27,40 +27,40 @@ export default function ScreenshotsView() {
   const activeImage = screenshotHistory[0] || null;
 
   return (
-    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-white">
+    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-bg">
       {/* Header */}
       <div>
-        <h1 className="text-lg font-bold text-gray-900 flex items-center gap-1.5">
-          <Camera size={18} className="text-primary-dark" />
+        <h1 className="text-lg font-bold text-gray-900 dark:text-zinc-100 flex items-center gap-1.5">
+          <Camera size={18} className="text-primary-dark dark:text-primary-light" />
           Screenshot Monitoring
         </h1>
-        <p className="text-xs text-gray-400 mt-0.5">{analysis.site.hostname}</p>
+        <p className="text-xs text-gray-400 dark:text-zinc-550 mt-0.5">{analysis.site.hostname}</p>
       </div>
 
       {/* Main capture action & Preview */}
       <div className="space-y-3">
         {activeImage ? (
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-2xs font-semibold text-gray-400 uppercase tracking-wide">
+            <div className="flex items-center justify-between text-2xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wide">
               <span>Latest Captured Screen</span>
-              <span className="text-primary-dark font-medium flex items-center gap-1">
+              <span className="text-primary-dark dark:text-primary-light font-medium flex items-center gap-1">
                 <ShieldCheck size={10} /> Active
               </span>
             </div>
             
             {/* Device Mockup Frame */}
-            <div className="border border-border rounded-lg overflow-hidden bg-white shadow-sm flex flex-col">
+            <div className="border border-border dark:border-zinc-805 bg-card shadow-sm flex flex-col">
               {/* Browser Header Decorator */}
-              <div className="h-6 border-b border-border bg-surface-2 flex items-center px-3 gap-1.5 flex-shrink-0">
+              <div className="h-6 border-b border-border dark:border-zinc-805 bg-surface-2 dark:bg-zinc-900/50 flex items-center px-3 gap-1.5 flex-shrink-0">
                 <div className="w-2 h-2 rounded-full bg-red-400" />
                 <div className="w-2 h-2 rounded-full bg-yellow-400" />
                 <div className="w-2 h-2 rounded-full bg-green-400" />
-                <div className="flex-1 max-w-[150px] mx-auto h-3.5 bg-white border border-border rounded text-3xs text-center text-gray-400 truncate px-2 font-mono flex items-center justify-center">
+                <div className="flex-1 max-w-[150px] mx-auto h-3.5 bg-white dark:bg-zinc-800 border border-border dark:border-zinc-700 rounded text-3xs text-center text-gray-400 dark:text-zinc-400 truncate px-2 font-mono flex items-center justify-center">
                   {analysis.site.hostname}
                 </div>
               </div>
               {/* Image Preview Container */}
-              <div className="relative aspect-[4/3] bg-gray-50 flex items-center justify-center overflow-hidden group">
+              <div className="relative aspect-[4/3] bg-gray-50 dark:bg-zinc-950/20 flex items-center justify-center overflow-hidden group">
                 <img
                   src={activeImage}
                   alt="Current tab screenshot capture"
@@ -69,7 +69,7 @@ export default function ScreenshotsView() {
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button
                     onClick={() => setActivePreview(activeImage)}
-                    className="p-1.5 bg-white text-gray-800 rounded-md hover:bg-gray-100 text-xs font-semibold flex items-center gap-1"
+                    className="p-1.5 bg-white dark:bg-zinc-800 text-gray-800 dark:text-zinc-200 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700 text-xs font-semibold flex items-center gap-1"
                   >
                     <Eye size={12} /> View
                   </button>
@@ -78,10 +78,10 @@ export default function ScreenshotsView() {
             </div>
           </div>
         ) : (
-          <div className="card border border-border flex flex-col items-center justify-center py-16 text-center">
-            <ImageIcon size={32} className="text-gray-300 mb-3" />
-            <p className="text-xs font-semibold text-gray-600">No screen captures found</p>
-            <p className="text-2xs text-gray-400 mt-0.5">Capture a visual snapshot of the page to monitor layouts.</p>
+          <div className="card border border-border dark:border-zinc-805 flex flex-col items-center justify-center py-16 text-center">
+            <ImageIcon size={32} className="text-gray-300 dark:text-zinc-700 mb-3" />
+            <p className="text-xs font-semibold text-gray-600 dark:text-zinc-300">No screen captures found</p>
+            <p className="text-2xs text-gray-400 dark:text-zinc-550 mt-0.5">Capture a visual snapshot of the page to monitor layouts.</p>
           </div>
         )}
 
@@ -103,8 +103,8 @@ export default function ScreenshotsView() {
               <div
                 key={i}
                 onClick={() => setActivePreview(src)}
-                className={`relative aspect-[4/3] rounded-md overflow-hidden border bg-gray-100 cursor-pointer hover:border-primary transition-all ${
-                  i === 0 ? 'border-primary shadow-xs ring-1 ring-primary/20' : 'border-border'
+                className={`relative aspect-[4/3] rounded-md overflow-hidden border bg-gray-100 dark:bg-zinc-900/50 cursor-pointer hover:border-primary transition-all ${
+                  i === 0 ? 'border-primary shadow-xs ring-1 ring-primary/20' : 'border-border dark:border-zinc-805'
                 }`}
               >
                 <img src={src} alt={`Screenshot ${i}`} className="w-full h-full object-cover" />
@@ -126,9 +126,9 @@ export default function ScreenshotsView() {
           className="fixed inset-0 z-50 bg-black/70 flex flex-col items-center justify-center p-4 animate-fade-in"
           onClick={() => setActivePreview(null)}
         >
-          <div className="relative max-w-full max-h-[85vh] border-2 border-white bg-white rounded-lg overflow-hidden shadow-2xl">
+          <div className="relative max-w-full max-h-[85vh] border-2 border-white dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-lg overflow-hidden shadow-2xl">
             <img src={activePreview} alt="Screenshot expansion zoom" className="max-w-full max-h-[80vh] object-contain" />
-            <div className="p-2 text-center text-3xs font-semibold text-gray-600 bg-white">
+            <div className="p-2 text-center text-3xs font-semibold text-gray-600 dark:text-zinc-400 bg-white dark:bg-zinc-900">
               Scan Visual Capture · Click anywhere to return
             </div>
           </div>

@@ -13,16 +13,16 @@ export default function SecurityInspector() {
   const headers = security.headers || {};
 
   return (
-    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up">
+    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-bg">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">Security</h1>
-          <p className="text-xs text-gray-400 mt-0.5">{analysis.site.hostname}</p>
+          <h1 className="text-lg font-bold text-gray-900 dark:text-zinc-100">Security</h1>
+          <p className="text-xs text-gray-400 dark:text-zinc-550 mt-0.5">{analysis.site.hostname}</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-2xl font-bold tabular-nums" style={{ color }}>{score}</span>
-          <span className="text-xs text-gray-400">/ 100</span>
+          <span className="text-xs text-gray-400 dark:text-zinc-500">/ 100</span>
         </div>
       </div>
 
@@ -73,12 +73,12 @@ export default function SecurityInspector() {
       {/* Cookies */}
       <SectionCard title="Cookies" badge={<span className="badge badge-neutral">{security.cookies.count}</span>} defaultOpen={false}>
         {security.cookies.count === 0 ? (
-          <p className="text-sm text-gray-400">No cookies detected</p>
+          <p className="text-sm text-gray-400 dark:text-zinc-500">No cookies detected</p>
         ) : (
           <div className="space-y-1">
             {security.cookies.items.map((cookie: { name: string }, i: number) => (
-              <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-border-light last:border-0">
-                <span className="text-gray-700 font-mono text-xs">{cookie.name}</span>
+              <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-border-light dark:border-zinc-800/40 last:border-0">
+                <span className="text-gray-700 dark:text-zinc-300 font-mono text-xs">{cookie.name}</span>
                 <span className="badge badge-warning text-2xs">JS Accessible</span>
               </div>
             ))}
@@ -89,12 +89,12 @@ export default function SecurityInspector() {
       {/* External Scripts */}
       <SectionCard title="External Scripts" badge={<span className="badge badge-neutral">{security.externalScripts.count}</span>} defaultOpen={false}>
         {security.externalScripts.count === 0 ? (
-          <p className="text-sm text-gray-400">No external scripts</p>
+          <p className="text-sm text-gray-400 dark:text-zinc-500">No external scripts</p>
         ) : (
           <div className="space-y-1">
             {security.externalScripts.items.slice(0, 10).map((script: { src: string; integrity: string | null }, i: number) => (
-              <div key={i} className="text-xs py-1.5 border-b border-border-light last:border-0">
-                <p className="text-gray-600 truncate">{script.src}</p>
+              <div key={i} className="text-xs py-1.5 border-b border-border-light dark:border-zinc-800/40 last:border-0">
+                <p className="text-gray-600 dark:text-zinc-400 truncate">{script.src}</p>
                 <div className="flex gap-2 mt-0.5">
                   <StatusCheck
                     label="SRI"

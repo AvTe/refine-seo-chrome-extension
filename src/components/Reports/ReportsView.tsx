@@ -350,12 +350,12 @@ export default function ReportsView() {
   };
 
   return (
-    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-white relative">
+    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-bg text-text relative">
       {/* Loading Overlay */}
       {isGenerating && (
-        <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-50 flex flex-col items-center justify-center gap-3">
-          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-semibold text-gray-700 animate-pulse">
+        <div className="absolute inset-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-[2px] z-50 flex flex-col items-center justify-center gap-3">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-semibold text-gray-700 dark:text-zinc-300 animate-pulse">
             Downloading builder components & compiling PDF...
           </p>
         </div>
@@ -363,16 +363,16 @@ export default function ReportsView() {
 
       {/* Header */}
       <div>
-        <h1 className="text-lg font-bold text-gray-900 flex items-center gap-1.5">
-          <FileText size={18} className="text-primary-dark" />
+        <h1 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+          <FileText size={18} className="text-primary-dark dark:text-primary-light" />
           PDF Report Exporter
         </h1>
-        <p className="text-xs text-gray-400 mt-0.5">{analysis.site.hostname}</p>
+        <p className="text-xs text-gray-400 dark:text-zinc-550 mt-0.5">{analysis.site.hostname}</p>
       </div>
 
       {/* Success Notice */}
       {successMessage && (
-        <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-xs flex gap-2">
+        <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 text-green-700 dark:text-green-400 rounded-lg text-xs flex gap-2">
           <Check size={14} className="flex-shrink-0 mt-0.5" />
           <p>{successMessage}</p>
         </div>
@@ -382,26 +382,26 @@ export default function ReportsView() {
       <SectionCard title="Report Details">
         <div className="space-y-3">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="client-input" className="text-2xs font-semibold text-gray-500 uppercase">Client / Project Name</label>
+            <label htmlFor="client-input" className="text-2xs font-semibold text-gray-500 dark:text-zinc-400 uppercase">Client / Project Name</label>
             <input
               id="client-input"
               type="text"
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
               placeholder="e.g. Acme Corp Marketing Team"
-              className="text-xs px-3 py-1.5 border border-border rounded-md focus:outline-none focus:border-primary"
+              className="text-xs px-3 py-1.5 border border-border dark:border-zinc-700 rounded-md focus:outline-none focus:border-primary bg-card text-text dark:placeholder-zinc-500"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="agency-input" className="text-2xs font-semibold text-gray-500 uppercase">Consultant / Agency Name</label>
+            <label htmlFor="agency-input" className="text-2xs font-semibold text-gray-500 dark:text-zinc-400 uppercase">Consultant / Agency Name</label>
             <input
               id="agency-input"
               type="text"
               value={agencyName}
               onChange={(e) => setAgencyName(e.target.value)}
               placeholder="e.g. Refine SEO Agency"
-              className="text-xs px-3 py-1.5 border border-border rounded-md focus:outline-none focus:border-primary"
+              className="text-xs px-3 py-1.5 border border-border dark:border-zinc-700 rounded-md focus:outline-none focus:border-primary bg-card text-text dark:placeholder-zinc-500"
             />
           </div>
         </div>
@@ -416,9 +416,9 @@ export default function ReportsView() {
                 type="checkbox"
                 checked={value}
                 onChange={() => handleSectionToggle(key as keyof typeof sections)}
-                className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
+                className="w-4 h-4 text-primary rounded border-gray-300 dark:border-zinc-750 dark:bg-zinc-800 focus:ring-primary"
               />
-              <span className="capitalize text-gray-700">
+              <span className="capitalize text-gray-700 dark:text-zinc-300">
                 {key === 'aiinsights' ? 'AI Insights checklist' : key === 'techstack' ? 'Technology Stack list' : key === 'aeo' ? 'AI Visibility (AEO) audit' : `${key.toUpperCase()} audit`}
               </span>
             </label>
@@ -430,7 +430,7 @@ export default function ReportsView() {
       <button
         onClick={handleExport}
         disabled={isGenerating}
-        className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary hover:bg-primary-dark text-white font-semibold text-xs rounded-lg transition-colors shadow-2xs disabled:opacity-50"
+        className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary dark:bg-primary-dark hover:bg-primary-dark dark:hover:bg-primary text-white font-semibold text-xs rounded-lg transition-colors shadow-2xs disabled:opacity-50"
       >
         <Download size={14} className={isGenerating ? 'animate-bounce' : ''} />
         <span>{isGenerating ? 'Generating PDF...' : 'Download PDF Report'}</span>

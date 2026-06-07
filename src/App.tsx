@@ -22,13 +22,13 @@ function AppContent() {
 
   if (error) {
     return (
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="flex-1 flex items-center justify-center p-6 bg-bg text-text">
         <div className="text-center">
-          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
-            <span className="text-red-500 text-xl">!</span>
+          <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/20 flex items-center justify-center mx-auto mb-3">
+            <span className="text-red-500 dark:text-red-400 text-xl">!</span>
           </div>
-          <p className="text-sm font-medium text-gray-700">Analysis Failed</p>
-          <p className="text-xs text-gray-400 mt-1 max-w-[200px]">{error}</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-zinc-200">Analysis Failed</p>
+          <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1 max-w-[200px]">{error}</p>
         </div>
       </div>
     );
@@ -58,23 +58,23 @@ function AppContent() {
   return (
     <>
       {/* Mobile Top Header Bar */}
-      <header className="h-11 border-b border-border bg-white flex items-center px-4 justify-between flex-shrink-0 md:hidden">
+      <header className="h-11 border-b border-border dark:border-zinc-800 bg-white dark:bg-zinc-950 flex items-center px-4 justify-between flex-shrink-0 md:hidden">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md"
+            className="p-1 text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md"
             aria-label="Toggle Sidebar"
           >
             <Menu size={16} />
           </button>
-          <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">
+          <span className="text-xs font-bold text-gray-700 dark:text-zinc-300 uppercase tracking-wide">
             {activeSection}
           </span>
         </div>
         <button
           onClick={requestAnalysis}
           disabled={isLoading}
-          className="p-1 text-primary-dark hover:bg-primary/10 rounded-md disabled:opacity-50 flex items-center justify-center"
+          className="p-1 text-primary-dark dark:text-primary-light hover:bg-primary/10 dark:hover:bg-primary/20 rounded-md disabled:opacity-50 flex items-center justify-center"
           title="Rescan"
         >
           <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
@@ -90,7 +90,7 @@ function AppContent() {
 export default function App() {
   return (
     <AnalysisProvider>
-      <div className="flex h-screen w-full bg-white overflow-hidden">
+      <div className="flex h-screen w-full bg-bg text-text overflow-hidden">
         <Sidebar />
         <main className="flex-1 flex flex-col overflow-hidden relative">
           <AppContent />

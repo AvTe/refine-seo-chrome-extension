@@ -49,54 +49,54 @@ export default function AEOAuditView() {
       title: 'Answer Readiness (25%)',
       score: answerReadiness.score,
       details: answerReadiness.details,
-      icon: <HelpCircle className="text-blue-500" size={18} />,
+      icon: <HelpCircle className="text-blue-500 dark:text-blue-400" size={18} />,
       desc: 'Direct Q&A headings, lists, tables, and short definitions suitable for conversational prompts.',
-      bg: 'bg-blue-50/50'
+      bg: 'bg-blue-50/50 dark:bg-blue-950/20'
     },
     {
       id: 'entity',
       title: 'Entity Coverage (20%)',
       score: entityCoverage.score,
       details: entityCoverage.details,
-      icon: <BookOpen className="text-purple-500" size={18} />,
+      icon: <BookOpen className="text-purple-500 dark:text-purple-400" size={18} />,
       desc: 'Semantic clarity and coverage of brand, org, product, place, software, and person entities.',
-      bg: 'bg-purple-50/50'
+      bg: 'bg-purple-50/50 dark:bg-purple-950/20'
     },
     {
       id: 'schema',
       title: 'Schema Readiness (20%)',
       score: schemaReadiness.score,
       details: schemaReadiness.details,
-      icon: <Tag className="text-orange-500" size={18} />,
+      icon: <Tag className="text-orange-500 dark:text-orange-400" size={18} />,
       desc: 'Critical structured JSON-LD entities (FAQ, Organization, Product, Article, Breadcrumbs).',
-      bg: 'bg-orange-50/50'
+      bg: 'bg-orange-50/50 dark:bg-orange-950/20'
     },
     {
       id: 'citation',
       title: 'Citation Readiness (15%)',
       score: citationReadiness.score,
       details: citationReadiness.details,
-      icon: <Link2 className="text-emerald-500" size={18} />,
+      icon: <Link2 className="text-emerald-500 dark:text-emerald-400" size={18} />,
       desc: 'Measurable authority factors: authors, dates, about/contact links, and external references.',
-      bg: 'bg-emerald-50/50'
+      bg: 'bg-emerald-50/50 dark:bg-emerald-950/20'
     },
     {
       id: 'eeat',
       title: 'E-E-A-T Signals (10%)',
       score: eeatSignals.score,
       details: eeatSignals.details,
-      icon: <ShieldCheck className="text-teal-500" size={18} />,
+      icon: <ShieldCheck className="text-teal-500 dark:text-teal-400" size={18} />,
       desc: 'Trust anchors: address, social tags, privacy/terms policy linkages, and corporate contact details.',
-      bg: 'bg-teal-50/50'
+      bg: 'bg-teal-50/50 dark:bg-teal-950/20'
     },
     {
       id: 'structure',
       title: 'Content Structure (10%)',
       score: contentStructure.score,
       details: contentStructure.details,
-      icon: <FileText className="text-indigo-500" size={18} />,
+      icon: <FileText className="text-indigo-500 dark:text-indigo-400" size={18} />,
       desc: 'Correct nesting H1->H6, short paragraph blocks, Table of Contents, and FAQ layout units.',
-      bg: 'bg-indigo-50/50'
+      bg: 'bg-indigo-50/50 dark:bg-indigo-950/20'
     }
   ];
 
@@ -159,35 +159,35 @@ export default function AEOAuditView() {
   };
 
   return (
-    <div className="flex-grow p-4 overflow-y-auto space-y-4 animate-slide-up bg-surface-base">
+    <div className="flex-grow p-4 overflow-y-auto space-y-4 animate-slide-up bg-bg text-text">
       
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-            <Brain size={18} className="text-indigo-600" />
+          <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center">
+            <Brain size={18} className="text-indigo-600 dark:text-primary-light" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-gray-900 flex items-center gap-1.5">
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
               AI Visibility / AEO Audit
               <span className="badge badge-info text-[9px] py-0.5 px-1.5 uppercase font-bold tracking-wider">GEO v2</span>
             </h1>
-            <p className="text-xs text-gray-400 mt-0.5">{analysis.site.hostname}</p>
+            <p className="text-xs text-gray-400 dark:text-zinc-550 mt-0.5">{analysis.site.hostname}</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
           <span className="text-2xl font-bold tabular-nums" style={{ color: mainColor }}>{aeoScore}</span>
-          <span className="text-xs text-gray-400">/ 100</span>
+          <span className="text-xs text-gray-400 dark:text-zinc-500">/ 100</span>
         </div>
       </div>
 
       {/* Explainer Banner */}
-      <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-50/70 via-purple-50/60 to-surface border border-indigo-100 flex gap-3">
-        <Sparkles size={18} className="text-indigo-600 shrink-0 mt-0.5" />
+      <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-50/70 via-purple-50/60 to-surface dark:from-indigo-950/20 dark:via-purple-950/20 dark:to-surface border border-indigo-100 dark:border-zinc-800 flex gap-3">
+        <Sparkles size={18} className="text-indigo-600 dark:text-primary-light shrink-0 mt-0.5" />
         <div>
-          <h3 className="text-xs font-semibold text-indigo-950">AEO/GEO Engine Alignment</h3>
-          <p className="text-[11px] text-indigo-900/80 mt-1 leading-relaxed">
-            Generative Engine Optimization (GEO) calculates content readiness for semantic retrieval. RefineAI parses strict, measurable HTML markers to score visibility factors without inventing metrics.
+          <h3 className="text-xs font-semibold text-indigo-950 dark:text-zinc-100">AEO/GEO Engine Alignment</h3>
+          <p className="text-[11px] text-indigo-900/80 dark:text-zinc-300 mt-1 leading-relaxed">
+            Generative Engine Optimization (GEO) calculates content readiness for semantic retrieval. Refine SEO Extension parses strict, measurable HTML markers to score visibility factors without inventing metrics.
           </p>
         </div>
       </div>
@@ -196,7 +196,7 @@ export default function AEOAuditView() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* SVG Circle Gauge Card */}
         <div className="card flex flex-col items-center justify-center p-5 text-center">
-          <p className="text-[10px] text-gray-400 font-bold tracking-wider mb-3">AI VISIBILITY INDEX</p>
+          <p className="text-[10px] text-gray-400 dark:text-zinc-500 font-bold tracking-wider mb-3">AI VISIBILITY INDEX</p>
           
           <div className="relative w-32 h-32 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 128 128">
@@ -204,7 +204,7 @@ export default function AEOAuditView() {
                 cx="64"
                 cy="64"
                 r="56"
-                className="stroke-gray-100"
+                className="stroke-gray-100 dark:stroke-zinc-800"
                 strokeWidth="8"
                 fill="transparent"
               />
@@ -222,12 +222,12 @@ export default function AEOAuditView() {
               />
             </svg>
             <div className="absolute flex flex-col items-center justify-center">
-              <span className="text-2xl font-extrabold text-gray-900">{aeoScore}</span>
-              <span className="text-[9px] text-gray-400 font-bold tracking-wider">SCORE</span>
+              <span className="text-2xl font-extrabold text-gray-900 dark:text-white">{aeoScore}</span>
+              <span className="text-[9px] text-gray-400 dark:text-zinc-555 font-bold tracking-wider">SCORE</span>
             </div>
           </div>
           
-          <div className="mt-3 flex items-center gap-1 text-[11px] text-gray-500">
+          <div className="mt-3 flex items-center gap-1 text-[11px] text-gray-500 dark:text-zinc-400">
             <TrendingUp size={12} className="text-emerald-500" />
             <span>Search Citation potential: </span>
             <span className="font-semibold" style={{ color: mainColor }}>
@@ -239,27 +239,27 @@ export default function AEOAuditView() {
         {/* Citation Probability Factors (Measurable indicators) */}
         <div className="card p-4 flex flex-col justify-between">
           <div>
-            <h3 className="text-xs font-bold text-gray-900 mb-2.5">AI Citation Probability</h3>
+            <h3 className="text-xs font-bold text-gray-900 dark:text-white mb-2.5">AI Citation Probability</h3>
             <div className="space-y-2">
               {strong.map((factor, i) => (
                 <div key={`s-${i}`} className="flex items-center gap-2 text-xs">
-                  <div className="w-4 h-4 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0">
+                  <div className="w-4 h-4 rounded-full bg-green-50 dark:bg-green-950/30 flex items-center justify-center text-green-600 dark:text-green-400 shrink-0">
                     <Check size={10} strokeWidth={3} />
                   </div>
-                  <span className="text-gray-700 font-medium">{factor}</span>
+                  <span className="text-gray-700 dark:text-zinc-300 font-medium">{factor}</span>
                 </div>
               ))}
               {weak.map((factor, i) => (
                 <div key={`w-${i}`} className="flex items-center gap-2 text-xs">
-                  <div className="w-4 h-4 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0">
+                  <div className="w-4 h-4 rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center text-red-500 dark:text-red-400 shrink-0">
                     <X size={10} strokeWidth={3} />
                   </div>
-                  <span className="text-gray-400">{factor}</span>
+                  <span className="text-gray-400 dark:text-zinc-500">{factor}</span>
                 </div>
               ))}
             </div>
           </div>
-          <div className="text-[10px] text-gray-400 pt-2 border-t border-gray-100 mt-2">
+          <div className="text-[10px] text-gray-400 dark:text-zinc-500 pt-2 border-t border-gray-100 dark:border-zinc-800 mt-2">
             Citation status computed based on DOM audits
           </div>
         </div>
@@ -268,7 +268,7 @@ export default function AEOAuditView() {
       {/* Entity Extractor */}
       <SectionCard title="GEO Entity Extractor" defaultOpen={true}>
         <div className="space-y-3">
-          <p className="text-[11px] text-gray-400">
+          <p className="text-[11px] text-gray-400 dark:text-zinc-400">
             AI search models associate documents with core vocabulary concepts. We extracted these primary entities from your content:
           </p>
           {entityCoverage.detectedEntities && entityCoverage.detectedEntities.length > 0 ? (
@@ -276,14 +276,14 @@ export default function AEOAuditView() {
               {entityCoverage.detectedEntities.map((ent, i) => (
                 <span 
                   key={i} 
-                  className="px-2 py-0.5 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-md shadow-3xs"
+                  className="px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:text-primary-light bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-zinc-800 rounded-md shadow-3xs"
                 >
                   {ent}
                 </span>
               ))}
             </div>
           ) : (
-            <div className="p-3 text-center border border-dashed rounded-lg bg-surface text-gray-400 text-xs">
+            <div className="p-3 text-center border border-dashed rounded-lg bg-surface dark:bg-zinc-900 border-border dark:border-zinc-800 text-gray-400 dark:text-zinc-500 text-xs">
               No prominent concepts detected. Inject named entities (companies, places, specifications) to build entity authority.
             </div>
           )}
@@ -313,7 +313,7 @@ export default function AEOAuditView() {
               {answerPreview || 'Analyzing page syntax...'}
             </p>
           </div>
-          <p className="text-[10px] text-gray-400 leading-normal">
+          <p className="text-[10px] text-gray-400 dark:text-zinc-550 leading-normal">
             This represents how conversational engine models summarize page descriptions based on H1 hierarchy structure and direct introductory definitions.
           </p>
         </div>
@@ -321,7 +321,7 @@ export default function AEOAuditView() {
 
       {/* Breakdown scorecard panels */}
       <div className="space-y-2">
-        <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider px-0.5">Scoring Breakdown Details</h2>
+        <h2 className="text-xs font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider px-0.5">Scoring Breakdown Details</h2>
         
         {categories.map((cat) => {
           const catColor = getScoreColor(cat.score);
@@ -330,8 +330,8 @@ export default function AEOAuditView() {
           return (
             <div 
               key={cat.id} 
-              className={`border rounded-xl transition-all duration-200 overflow-hidden ${
-                isExpanded ? 'border-gray-300 bg-white shadow-sm' : 'border-gray-200 hover:border-gray-300 bg-white'
+              className={`border dark:border-zinc-800 rounded-xl transition-all duration-200 overflow-hidden bg-card ${
+                isExpanded ? 'border-gray-300 dark:border-zinc-700 shadow-sm' : 'border-gray-200 hover:border-gray-300 dark:hover:border-zinc-700'
               }`}
             >
               {/* Header tab button */}
@@ -344,8 +344,8 @@ export default function AEOAuditView() {
                     {cat.icon}
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-gray-800">{cat.title}</h3>
-                    <p className="text-[10px] text-gray-400 mt-0.5 leading-normal max-w-[240px] md:max-w-md line-clamp-1">
+                    <h3 className="text-xs font-bold text-gray-800 dark:text-zinc-200">{cat.title}</h3>
+                    <p className="text-[10px] text-gray-400 dark:text-zinc-500 mt-0.5 leading-normal max-w-[240px] md:max-w-md line-clamp-1">
                       {cat.desc}
                     </p>
                   </div>
@@ -356,9 +356,9 @@ export default function AEOAuditView() {
                     <span className="text-xs font-bold tabular-nums" style={{ color: catColor }}>
                       {cat.score}
                     </span>
-                    <span className="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Score</span>
+                    <span className="text-[8px] text-gray-400 dark:text-zinc-550 font-bold uppercase tracking-wider">Score</span>
                   </div>
-                  <div className="w-1.5 h-7.5 bg-gray-100 rounded-full overflow-hidden shrink-0">
+                  <div className="w-1.5 h-7.5 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden shrink-0">
                     <div 
                       className="w-full rounded-full transition-all duration-500" 
                       style={{ height: `${cat.score}%`, backgroundColor: catColor }} 
@@ -369,16 +369,16 @@ export default function AEOAuditView() {
 
               {/* Expansion check lists */}
               {isExpanded && (
-                <div className="px-3 pb-3 pt-1 border-t border-gray-100 bg-slate-50/50 space-y-2 animate-slide-down">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Scanned DOM checkpoints:</p>
+                <div className="px-3 pb-3 pt-1 border-t border-gray-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950/20 space-y-2 animate-slide-down">
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-zinc-555 uppercase tracking-wider mb-1">Scanned DOM checkpoints:</p>
                   {cat.details.map((detail, index) => {
                     const status = getDetailIcon(detail);
                     return (
-                      <div key={index} className="flex gap-2.5 items-start p-2 rounded-lg bg-white border border-gray-100 text-xs">
+                      <div key={index} className="flex gap-2.5 items-start p-2 rounded-lg bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-850 text-xs">
                         <div className={`w-4.5 h-4.5 rounded-full flex items-center justify-center ${status.bg} mt-0.5 shrink-0`}>
                           {status.icon}
                         </div>
-                        <span className="text-gray-700 leading-relaxed text-[11px]">{detail}</span>
+                        <span className="text-gray-700 dark:text-zinc-300 leading-relaxed text-[11px]">{detail}</span>
                       </div>
                     );
                   })}

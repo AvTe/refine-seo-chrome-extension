@@ -205,25 +205,25 @@ User's Question: "${userText}"`;
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden animate-slide-up bg-white">
+    <div className="flex-1 flex flex-col overflow-hidden animate-slide-up bg-bg text-text">
       {/* Scrollable Audit Section */}
       <div className="flex-1 p-5 overflow-y-auto space-y-4">
         {/* Header */}
         <div>
-          <h1 className="text-lg font-bold text-gray-900 flex items-center gap-1.5">
-            <Sparkles size={18} className="text-primary-dark" />
+          <h1 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+            <Sparkles size={18} className="text-primary-dark dark:text-primary-light" />
             AI Insights & Chat
           </h1>
-          <p className="text-xs text-gray-400 mt-0.5">{analysis.site.hostname}</p>
+          <p className="text-xs text-gray-400 dark:text-zinc-550 mt-0.5">{analysis.site.hostname}</p>
         </div>
 
         {/* Gemini Notice */}
         {!apiKey && (
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex gap-2.5 items-start">
-            <AlertCircle size={16} className="text-amber-600 mt-0.5 flex-shrink-0" />
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-lg flex gap-2.5 items-start">
+            <AlertCircle size={16} className="text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-xs font-semibold text-amber-800">Local Rules Engine Active</p>
-              <p className="text-2xs text-amber-600 mt-0.5">
+              <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">Local Rules Engine Active</p>
+              <p className="text-2xs text-amber-600 dark:text-amber-400 mt-0.5">
                 Using built-in rules for analysis. To activate live generative answers, enter your Gemini API Key in the <strong>Settings</strong> tab.
               </p>
             </div>
@@ -246,8 +246,8 @@ User's Question: "${userText}"`;
                     }`}
                   />
                   <div>
-                    <span className="text-xs font-semibold text-gray-800">{s.title}</span>
-                    <p className="text-2xs text-gray-500">{s.desc}</p>
+                    <span className="text-xs font-semibold text-gray-800 dark:text-zinc-200">{s.title}</span>
+                    <p className="text-2xs text-gray-500 dark:text-zinc-400">{s.desc}</p>
                   </div>
                 </div>
               ))}
@@ -256,24 +256,24 @@ User's Question: "${userText}"`;
         )}
 
         {/* Chat Log */}
-        <div className="border border-border rounded-lg bg-surface flex flex-col h-[280px] overflow-hidden">
-          <div className="p-2 border-b border-border bg-white flex items-center gap-1.5">
-            <Bot size={14} className="text-primary-dark" />
-            <span className="text-xs font-semibold text-gray-800">Refine SEO Chatbot</span>
+        <div className="border border-border dark:border-zinc-800 rounded-lg bg-surface flex flex-col h-[280px] overflow-hidden">
+          <div className="p-2 border-b border-border dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center gap-1.5">
+            <Bot size={14} className="text-primary-dark dark:text-primary-light" />
+            <span className="text-xs font-semibold text-gray-800 dark:text-zinc-200">Refine SEO Chatbot</span>
           </div>
-          <div className="flex-grow p-3 overflow-y-auto space-y-3 text-xs bg-gray-50/50">
+          <div className="flex-grow p-3 overflow-y-auto space-y-3 text-xs bg-gray-50/50 dark:bg-zinc-950/20">
             {messages.map((m, i) => (
               <div key={i} className={`flex items-start gap-2 max-w-[85%] ${m.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    m.sender === 'user' ? 'bg-primary/20 text-primary-dark' : 'bg-gray-200 text-gray-600'
+                    m.sender === 'user' ? 'bg-primary/20 dark:bg-primary/30 text-primary-dark dark:text-primary-light' : 'bg-gray-200 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400'
                   }`}
                 >
                   {m.sender === 'user' ? <User size={12} /> : <Bot size={12} />}
                 </div>
                 <div
                   className={`p-2.5 rounded-lg whitespace-pre-wrap ${
-                    m.sender === 'user' ? 'bg-primary text-white font-medium rounded-tr-none' : 'bg-white border border-border text-gray-800 rounded-tl-none shadow-2xs'
+                    m.sender === 'user' ? 'bg-primary text-white font-medium rounded-tr-none' : 'bg-white dark:bg-zinc-900 border border-border dark:border-zinc-800 text-gray-800 dark:text-zinc-200 rounded-tl-none shadow-2xs'
                   }`}
                 >
                   {m.text}
@@ -282,10 +282,10 @@ User's Question: "${userText}"`;
             ))}
             {isTyping && (
               <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0 animate-pulse">
+                <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 flex items-center justify-center flex-shrink-0 animate-pulse">
                   <Bot size={12} />
                 </div>
-                <div className="bg-white border border-border p-2.5 rounded-lg rounded-tl-none text-gray-400 italic">
+                <div className="bg-white dark:bg-zinc-900 border border-border dark:border-zinc-800 p-2.5 rounded-lg rounded-tl-none text-gray-400 dark:text-zinc-500 italic animate-pulse">
                   Refine SEO is analyzing...
                 </div>
               </div>
@@ -294,18 +294,18 @@ User's Question: "${userText}"`;
           </div>
 
           {/* Chat Input */}
-          <div className="p-2 border-t border-border bg-white flex items-center gap-2">
+          <div className="p-2 border-t border-border dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center gap-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Ask about SEO, performance..."
-              className="flex-grow text-xs px-3 py-1.5 border border-border rounded-md focus:outline-none focus:border-primary"
+              className="flex-grow text-xs px-3 py-1.5 border border-border dark:border-zinc-700 rounded-md focus:outline-none focus:border-primary bg-card text-text dark:placeholder-zinc-500"
             />
             <button
               onClick={handleSend}
-              className="p-1.5 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors flex-shrink-0"
+              className="p-1.5 bg-primary dark:bg-primary-dark text-white rounded-md hover:bg-primary-dark dark:hover:bg-primary transition-colors flex-shrink-0"
               aria-label="Send"
             >
               <Send size={14} />

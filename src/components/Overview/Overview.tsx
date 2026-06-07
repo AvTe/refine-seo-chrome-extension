@@ -37,12 +37,12 @@ export default function Overview() {
   ];
 
   return (
-    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up">
+    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-bg text-text">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">Website Overview</h1>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <h1 className="text-lg font-bold text-gray-900 dark:text-white">Website Overview</h1>
+          <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
             {analysis.site.hostname} · Last scan {lastScanTime || '—'}
           </p>
         </div>
@@ -61,23 +61,23 @@ export default function Overview() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <p className="text-xs text-gray-500 font-medium">Website Score</p>
+              <p className="text-xs text-gray-500 dark:text-zinc-400 font-medium">Website Score</p>
               {delta !== null && (
                 <span className={`text-2xs font-semibold px-1.5 py-0.5 rounded ${
                   delta > 0 
-                    ? 'bg-green-50 text-green-700' 
+                    ? 'bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400' 
                     : delta < 0 
-                      ? 'bg-red-50 text-red-700' 
-                      : 'bg-gray-50 text-gray-600'
+                      ? 'bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400' 
+                      : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400'
                 }`}>
                   {delta > 0 ? `↑ +${delta}` : delta < 0 ? `↓ ${Math.abs(delta)}` : 'No change'}
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">
               Based on SEO, security, performance & accessibility
             </p>
-            <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div className="mt-2 h-2 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-700 ease-out"
                 style={{ width: `${overallScore}%`, backgroundColor: overallColor }}
@@ -106,7 +106,16 @@ export default function Overview() {
               }))}>
                 <XAxis dataKey="time" tick={{ fontSize: 9, fill: '#737373' }} axisLine={false} tickLine={false} />
                 <YAxis domain={[0, 100]} width={18} tick={{ fontSize: 9, fill: '#737373' }} axisLine={false} tickLine={false} />
-                <Tooltip formatter={(v) => [`Score: ${v}`, 'Overall']} contentStyle={{ fontSize: 10, borderRadius: 6 }} />
+                <Tooltip 
+                  formatter={(v) => [`Score: ${v}`, 'Overall']} 
+                  contentStyle={{ 
+                    fontSize: 10, 
+                    borderRadius: 6, 
+                    backgroundColor: 'var(--card)', 
+                    borderColor: 'var(--border)', 
+                    color: 'var(--text)' 
+                  }} 
+                />
                 <Line type="monotone" dataKey="score" stroke="#a06ce0" strokeWidth={2} dot={{ r: 2 }} activeDot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
@@ -133,7 +142,7 @@ export default function Overview() {
             {techItems.map((item, i) => (
               <span key={i} className="badge badge-neutral">
                 {item.name}
-                {item.version && <span className="ml-1 text-gray-400">{item.version}</span>}
+                {item.version && <span className="ml-1 text-gray-400 dark:text-zinc-500">{item.version}</span>}
               </span>
             ))}
           </div>
@@ -145,20 +154,20 @@ export default function Overview() {
         <SectionCard title="WordPress Status">
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Theme</span>
-              <span className="font-medium text-gray-800 capitalize">
+              <span className="text-gray-500 dark:text-zinc-400">Theme</span>
+              <span className="font-medium text-gray-800 dark:text-zinc-200 capitalize">
                 {analysis.wordpress.theme?.active || '—'}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Plugins</span>
-              <span className="font-medium text-gray-800">
+              <span className="text-gray-500 dark:text-zinc-400">Plugins</span>
+              <span className="font-medium text-gray-800 dark:text-zinc-200">
                 {analysis.wordpress.pluginCount || 0} detected
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Issues</span>
-              <span className={`font-medium ${(analysis.wordpress.issues?.length || 0) > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+              <span className="text-gray-500 dark:text-zinc-400">Issues</span>
+              <span className={`font-medium ${(analysis.wordpress.issues?.length || 0) > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>
                 {analysis.wordpress.issues?.length || 0} found
               </span>
             </div>
@@ -173,7 +182,7 @@ export default function Overview() {
             {analysis.accessibility.issues.slice(0, 5).map((issue: { type: string; message: string }, i: number) => (
               <div key={i} className="flex items-start gap-2 text-sm py-1">
                 <span className={`mt-0.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${issue.type === 'error' ? 'bg-red-500' : 'bg-amber-500'}`} />
-                <span className="text-gray-600">{issue.message}</span>
+                <span className="text-gray-600 dark:text-zinc-300">{issue.message}</span>
               </div>
             ))}
           </div>
@@ -195,18 +204,18 @@ function InfoRow({
   status?: 'pass' | 'fail';
 }) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-border-light last:border-b-0">
-      <div className="flex items-center gap-2 text-gray-500">
+    <div className="flex items-center justify-between py-2 border-b border-border-light dark:border-zinc-800 last:border-b-0">
+      <div className="flex items-center gap-2 text-gray-500 dark:text-zinc-400">
         {icon}
         <span className="text-sm">{label}</span>
       </div>
       <span
         className={`text-sm font-medium ${
           status === 'pass'
-            ? 'text-green-600'
+            ? 'text-green-600 dark:text-green-400'
             : status === 'fail'
-              ? 'text-red-600'
-              : 'text-gray-800'
+              ? 'text-red-600 dark:text-red-400'
+              : 'text-gray-800 dark:text-zinc-200'
         }`}
       >
         {value}

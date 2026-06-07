@@ -28,6 +28,8 @@ interface AnalysisContextType {
   setApiKey: (key: string) => void;
   auditHistory: AuditHistoryItem[];
   clearHistory: () => void;
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
 }
 
 const AnalysisContext = createContext<AnalysisContextType | null>(null);
@@ -48,6 +50,49 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [screenshotHistory, setScreenshotHistory] = useState<string[]>([]);
   const [apiKey, setApiKeyState] = useState<string>(() => localStorage.getItem('refineseo_api_key') || '');
   const [auditHistory, setAuditHistory] = useState<AuditHistoryItem[]>([]);
+  const [theme, setThemeState] = useState<'light' | 'dark'>('light');
+
+  const applyTheme = (t: 'light' | 'dark') => {
+    const root = window.document.documentElement;
+    if (t === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  };
+
+  useEffect(() => {
+    const handleInitialTheme = (savedTheme?: string) => {
+      let activeTheme: 'light' | 'dark' = 'light';
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        activeTheme = savedTheme;
+      } else {
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        activeTheme = systemPrefersDark ? 'dark' : 'light';
+      }
+      setThemeState(activeTheme);
+      applyTheme(activeTheme);
+    };
+
+    if (isChromeExtension) {
+      chrome.storage.local.get('theme', (result) => {
+        handleInitialTheme(result.theme as string | undefined);
+      });
+    } else {
+      const saved = localStorage.getItem('refineseo_theme') || undefined;
+      handleInitialTheme(saved);
+    }
+  }, []);
+
+  const setTheme = (t: 'light' | 'dark') => {
+    setThemeState(t);
+    applyTheme(t);
+    if (isChromeExtension) {
+      chrome.storage.local.set({ theme: t });
+    } else {
+      localStorage.setItem('refineseo_theme', t);
+    }
+  };
 
   // Function to add a scan to history
   const addToHistory = useCallback((data: PageAnalysis) => {
@@ -320,6 +365,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         setApiKey,
         auditHistory,
         clearHistory,
+        theme,
+        setTheme,
       }}
     >
       {children}
