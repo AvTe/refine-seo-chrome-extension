@@ -32,6 +32,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // Side panel might not be open — that's fine
       });
 
+      // Check settings and trigger notifications for critical issues
+      chrome.storage.local.get('showNotifications', (res) => {
+        const notify = res.showNotifications !== false; // Default to true
+        if (notify) {
+          triggerCriticalNotifications(currentAnalysis);
+        }
+      });
+
       sendResponse({ success: true });
       break;
 
@@ -295,27 +303,84 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+// Check and show notifications if critical issues are found
+function triggerCriticalNotifications(analysis) {
+  if (!analysis) return;
+  const criticalIssues = [];
+
+  // 1. Missing H1 (SEO error)
+  if (analysis.seo?.h1Count === 0) {
+    criticalIssues.push('Missing main H1 tag');
+  }
+
+  // 2. Security: Over HTTP (no SSL) or Mixed Content
+  if (analysis.security) {
+    if (!analysis.security.isHTTPS) {
+      criticalIssues.push('Site is not using HTTPS (secure connection)');
+    }
+    if (analysis.security.mixedContent?.count > 0) {
+      criticalIssues.push(`Found mixed content (${analysis.security.mixedContent.count} insecure assets)`);
+    }
+    if (analysis.security.passwordOverHTTP) {
+      criticalIssues.push('Password input over insecure HTTP detected');
+    }
+  }
+
+  // 3. Accessibility errors
+  if (analysis.accessibility?.errorCount > 0) {
+    criticalIssues.push(`Found ${analysis.accessibility.errorCount} critical accessibility issue(s)`);
+  }
+
+  // 4. Performance TTFB warning
+  if (analysis.performance?.timings?.ttfb > 1200) {
+    criticalIssues.push('Severely slow server response time (TTFB > 1.2s)');
+  }
+
+  if (criticalIssues.length > 0) {
+    const domain = analysis.site?.hostname || 'Audited website';
+    const messageText = criticalIssues.slice(0, 2).join('\n') + (criticalIssues.length > 2 ? `\n+ ${criticalIssues.length - 2} more issues` : '');
+    
+    chrome.notifications.create(`critical-seo-alert-${Date.now()}`, {
+      type: 'basic',
+      iconUrl: 'icons/icon-128.png',
+      title: `Refine SEO: Critical Issues on ${domain}`,
+      message: messageText,
+      priority: 2
+    });
+  }
+}
+
 // Re-analyze when tab is updated (navigation)
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.active) {
-    // Small delay to let the page fully render
-    setTimeout(() => {
-      chrome.tabs.sendMessage(tabId, { type: 'RUN_ANALYSIS' })
-        .catch(() => {
-          // Content script might not be injected yet
-        });
-    }, 1000);
+    chrome.storage.local.get('autoScan', (result) => {
+      const autoScan = result.autoScan !== false; // Default to true
+      if (autoScan) {
+        // Small delay to let the page fully render
+        setTimeout(() => {
+          chrome.tabs.sendMessage(tabId, { type: 'RUN_ANALYSIS' })
+            .catch(() => {
+              // Content script might not be injected yet
+            });
+        }, 1000);
+      }
+    });
   }
 });
 
 // Re-analyze when switching tabs
 chrome.tabs.onActivated.addListener((activeInfo) => {
-  setTimeout(() => {
-    chrome.tabs.sendMessage(activeInfo.tabId, { type: 'RUN_ANALYSIS' })
-      .catch(() => {
-        // Content script might not be injected yet
-      });
-  }, 500);
+  chrome.storage.local.get('autoScan', (result) => {
+    const autoScan = result.autoScan !== false; // Default to true
+    if (autoScan) {
+      setTimeout(() => {
+        chrome.tabs.sendMessage(activeInfo.tabId, { type: 'RUN_ANALYSIS' })
+          .catch(() => {
+            // Content script might not be injected yet
+          });
+      }, 500);
+    }
+  });
 });
 
 console.log('[Refine SEO] Background service worker initialized');

@@ -1600,6 +1600,15 @@
     return true;
   });
 
-  // Run initial analysis
-  runFullAnalysis();
+  // Run initial analysis if autoScan is enabled
+  if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+    chrome.storage.local.get('autoScan', (result) => {
+      const autoScan = result.autoScan !== false; // Default to true
+      if (autoScan) {
+        runFullAnalysis();
+      }
+    });
+  } else {
+    runFullAnalysis();
+  }
 })();

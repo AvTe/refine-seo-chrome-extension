@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Info, Key } from 'lucide-react';
 import { useAnalysis } from '@/context/AnalysisContext';
 
@@ -6,6 +6,29 @@ export default function SettingsView() {
   const { apiKey, setApiKey } = useAnalysis();
   const [autoScan, setAutoScan] = useState(true);
   const [showNotifications, setShowNotifications] = useState(true);
+
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      chrome.storage.local.get(['autoScan', 'showNotifications'], (result) => {
+        if (result.autoScan !== undefined) setAutoScan(result.autoScan as boolean);
+        if (result.showNotifications !== undefined) setShowNotifications(result.showNotifications as boolean);
+      });
+    }
+  }, []);
+
+  const handleAutoScanChange = (val: boolean) => {
+    setAutoScan(val);
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      chrome.storage.local.set({ autoScan: val });
+    }
+  };
+
+  const handleShowNotificationsChange = (val: boolean) => {
+    setShowNotifications(val);
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      chrome.storage.local.set({ showNotifications: val });
+    }
+  };
 
   return (
     <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up">
@@ -22,14 +45,14 @@ export default function SettingsView() {
           label="Auto-scan on page load"
           description="Automatically analyze pages when you navigate"
           enabled={autoScan}
-          onChange={setAutoScan}
+          onChange={handleAutoScanChange}
         />
 
         <ToggleSetting
           label="Show notifications"
           description="Alert when critical issues are found"
           enabled={showNotifications}
-          onChange={setShowNotifications}
+          onChange={handleShowNotificationsChange}
         />
       </div>
 
@@ -107,14 +130,15 @@ function ToggleSetting({
         <p className="text-xs text-gray-400">{description}</p>
       </div>
       <button
+        type="button"
         onClick={() => onChange(!enabled)}
-        className={`relative w-9 h-5 rounded-full transition-colors ${
-          enabled ? 'bg-primary' : 'bg-gray-300'
+        className={`relative w-9 h-5 rounded-full transition-colors p-0 focus:outline-none focus:ring-0 border-0 flex-shrink-0 ${
+          enabled ? 'bg-primary' : 'bg-gray-200'
         }`}
       >
         <span
-          className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-            enabled ? 'translate-x-[18px]' : 'translate-x-0.5'
+          className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${
+            enabled ? 'translate-x-4' : 'translate-x-0'
           }`}
         />
       </button>
