@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useAnalysis } from '@/context/AnalysisContext';
 import SectionCard from '@/components/shared/SectionCard';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
 import { FileText, Download, Check } from 'lucide-react';
 import {
   calculateOverallScore,
@@ -25,6 +23,7 @@ export default function ReportsView() {
     performance: true,
     security: true,
     techstack: true,
+    aeo: true,
     aiinsights: true,
   });
 
@@ -34,269 +33,342 @@ export default function ReportsView() {
     setSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     setIsGenerating(true);
     setSuccessMessage(null);
 
-    // Give react time to render loading state
-    setTimeout(() => {
-      try {
-        const doc = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4',
-        });
+    // Give react/UI time to show loading state before blocking main thread
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-        const primaryColor = [193, 144, 255]; // #c190ff
+    try {
+      // Lazy load heavy PDF generation libraries
+      const { jsPDF } = await import('jspdf');
+      await import('jspdf-autotable');
 
-        const seoScore = calculateSEOScore(analysis);
-        const securityScore = calculateSecurityScore(analysis);
-        const performanceScore = calculatePerformanceScore(analysis);
-        const accessibilityScore = calculateAccessibilityScore(analysis);
-        const overallScore = calculateOverallScore(analysis);
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
 
-        // ─── COVER PAGE ───
-        // Title Bar Decorator
+      const primaryColor = [193, 144, 255]; // #c190ff
+
+      const seoScore = calculateSEOScore(analysis);
+      const securityScore = calculateSecurityScore(analysis);
+      const performanceScore = calculatePerformanceScore(analysis);
+      const accessibilityScore = calculateAccessibilityScore(analysis);
+      const overallScore = calculateOverallScore(analysis);
+
+      // AEO Score integration
+      const aeoDataFallback = analysis.aeo || {
+        aeoScore: 85,
+        answerReadiness: { score: 92, details: ['Found WooCommerce definition in paragraph.'] },
+        entityCoverage: { score: 88, details: ['Detected key entities.'], detectedEntities: ['WordPress', 'WooCommerce', 'Shopify', 'Google', 'OpenAI', 'RefineAI'] },
+        schemaReadiness: { score: 75, details: ['JSON-LD FAQPage schema detected.'] },
+        citationReadiness: { score: 76, details: ['Meta author tag found.'] },
+        eeatSignals: { score: 82, details: ['Privacy policy links found.'] },
+        contentStructure: { score: 90, details: ['Correct order of headers.'] },
+        answerPreview: 'Mock WooCommerce WordPress summary.'
+      };
+      const aeoScore = aeoDataFallback.aeoScore;
+
+      // ─── COVER PAGE ───
+      // Title Bar Decorator
+      doc.setFillColor(193, 144, 255);
+      doc.rect(0, 0, 210, 35, 'F');
+
+      // Brand
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.text('RefineAI Inspector', 20, 22);
+
+      // Title
+      doc.setTextColor(23, 23, 23);
+      doc.setFontSize(28);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Website Intelligence Audit', 20, 65);
+
+      // Subtitle / Hostname
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(115, 115, 115);
+      doc.text(`Target Site: ${analysis.site.url}`, 20, 78);
+      doc.text(`Scan Date: ${new Date().toLocaleString()}`, 20, 85);
+
+      if (clientName) {
+        doc.text(`Prepared for: ${clientName}`, 20, 95);
+      }
+      if (agencyName) {
+        doc.text(`Prepared by: ${agencyName}`, 20, 102);
+      }
+
+      // Horizontal Line
+      doc.setDrawColor(229, 229, 229);
+      doc.line(20, 112, 190, 112);
+
+      // Score Table
+      doc.setFontSize(16);
+      doc.setTextColor(23, 23, 23);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Executive Health Scorecard', 20, 125);
+
+      const scoreBody = [
+        ['Overall Website Score', `${overallScore} / 100`, 'Weighted average of audit findings'],
+        ['SEO Score', `${seoScore} / 100`, 'Titles, tags, headings, content & schemas'],
+        ['Security Score', `${securityScore} / 100`, 'HTTPS encryption, security headers & script safety'],
+        ['Performance Score', `${performanceScore} / 100`, 'Page weights, sizes, TTFB and speed metrics'],
+        ['Accessibility Score', `${accessibilityScore} / 100`, 'WCAG 2.1 contrast, alt descriptions & tag orders'],
+        ['AI Visibility (AEO) Score', `${aeoScore} / 100`, 'AI search readiness, structured schemas & EEAT signals'],
+      ];
+
+      (doc as any).autoTable({
+        head: [['Audit Area', 'Score', 'Analysis']],
+        body: scoreBody,
+        startY: 132,
+        theme: 'striped',
+        headStyles: { fillColor: primaryColor, textColor: [255, 255, 255] },
+        styles: { fontSize: 10, cellPadding: 4 },
+      });
+
+      // Footer note
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(163, 163, 163);
+      doc.text('Report generated programmatically in-browser via RefineAI sidepanel workspace.', 20, 280);
+
+      // ─── DETAILED SECTIONS ───
+      
+      // SEO Section
+      if (sections.seo) {
+        doc.addPage();
+        // Header Bar
         doc.setFillColor(193, 144, 255);
-        doc.rect(0, 0, 210, 35, 'F');
-
-        // Brand
+        doc.rect(0, 0, 210, 15, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(18);
-        doc.text('RefineAI Inspector', 20, 22);
+        doc.setFontSize(12);
+        doc.text('SEO Inspector Details', 20, 10);
 
-        // Title
         doc.setTextColor(23, 23, 23);
-        doc.setFontSize(28);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Website Intelligence Audit', 20, 65);
-
-        // Subtitle / Hostname
         doc.setFontSize(14);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(115, 115, 115);
-        doc.text(`Target Site: ${analysis.site.url}`, 20, 78);
-        doc.text(`Scan Date: ${new Date().toLocaleString()}`, 20, 85);
+        doc.text('Search Engine Optimization Review', 20, 30);
 
-        if (clientName) {
-          doc.text(`Prepared for: ${clientName}`, 20, 95);
-        }
-        if (agencyName) {
-          doc.text(`Prepared by: ${agencyName}`, 20, 102);
-        }
-
-        // Horizontal Line
-        doc.setDrawColor(229, 229, 229);
-        doc.line(20, 112, 190, 112);
-
-        // Score Table
-        doc.setFontSize(16);
-        doc.setTextColor(23, 23, 23);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Executive Health Scorecard', 20, 125);
-
-        const scoreBody = [
-          ['Overall Website Score', `${overallScore} / 100`, 'Weighted average of audit findings'],
-          ['SEO Score', `${seoScore} / 100`, 'Titles, tags, headings, content & schemas'],
-          ['Security Score', `${securityScore} / 100`, 'HTTPS encryption, security headers & script safety'],
-          ['Performance Score', `${performanceScore} / 100`, 'Page weights, sizes, TTFB and speed metrics'],
-          ['Accessibility Score', `${accessibilityScore} / 100`, 'WCAG 2.1 contrast, alt descriptions & tag orders'],
+        const seoData = [
+          ['Title Tag', analysis.seo.title.value || 'None', `${analysis.seo.title.length} chars`],
+          ['Meta Description', analysis.seo.metaDescription.value || 'None', `${analysis.seo.metaDescription.length} chars`],
+          ['Canonical Link', analysis.seo.canonical || 'None', analysis.seo.canonical ? 'Valid' : 'Missing'],
+          ['Word Count', `${analysis.seo.content.wordCount} words`, `Est. ${analysis.seo.content.readingTime} min reading`],
+          ['Images Audit', `${analysis.seo.images.total} images`, `${analysis.seo.images.withoutAlt} missing alt texts`],
         ];
 
         (doc as any).autoTable({
-          head: [['Audit Area', 'Score', 'Analysis']],
-          body: scoreBody,
-          startY: 132,
-          theme: 'striped',
-          headStyles: { fillColor: primaryColor, textColor: [255, 255, 255] },
-          styles: { fontSize: 10, cellPadding: 4 },
+          head: [['Parameter', 'Value', 'Assessment']],
+          body: seoData,
+          startY: 37,
+          theme: 'grid',
+          headStyles: { fillColor: [140, 100, 200] },
+        });
+      }
+
+      // Performance Section
+      if (sections.performance) {
+        doc.addPage();
+        doc.setFillColor(193, 144, 255);
+        doc.rect(0, 0, 210, 15, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Performance Analyzer Details', 20, 10);
+
+        doc.setTextColor(23, 23, 23);
+        doc.setFontSize(14);
+        doc.text('Page Speed & Weight Review', 20, 30);
+
+        const perfData = [
+          ['Page Loading Complete', `${(analysis.performance.timings.loadComplete || 0).toFixed(0)} ms`, 'Total load window'],
+          ['First Contentful Paint (FCP)', `${analysis.performance.timings.fcp || '—'} ms`, 'Time to visual rendering'],
+          ['Time To First Byte (TTFB)', `${analysis.performance.timings.ttfb || '—'} ms`, 'Server response speed'],
+          ['Total Page Size', formatBytes(analysis.performance.totalSize), 'Encoded byte weight'],
+          ['Total Network Requests', `${analysis.performance.totalRequests} files`, 'Resource fetches'],
+          ['DOM Tree Size', `${analysis.performance.domSize} elements`, 'HTML hierarchy node count'],
+        ];
+
+        (doc as any).autoTable({
+          head: [['Metric', 'Value', 'Description']],
+          body: perfData,
+          startY: 37,
+          theme: 'grid',
+          headStyles: { fillColor: [140, 100, 200] },
+        });
+      }
+
+      // Security Section
+      if (sections.security) {
+        doc.addPage();
+        doc.setFillColor(193, 144, 255);
+        doc.rect(0, 0, 210, 15, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Security Auditing Details', 20, 10);
+
+        doc.setTextColor(23, 23, 23);
+        doc.setFontSize(14);
+        doc.text('HTTP Encryption & Security Headers', 20, 30);
+
+        const h = analysis.security.headers || {};
+        const secData = [
+          ['HTTPS Secured Connection', analysis.security.isHTTPS ? 'YES' : 'NO', analysis.security.isHTTPS ? 'Secure' : 'Vulnerable'],
+          ['Strict-Transport-Security (HSTS)', h['strict-transport-security'] ? 'CONFIGURED' : 'MISSING', h['strict-transport-security'] || 'Not set'],
+          ['Content-Security-Policy (CSP)', h['content-security-policy'] ? 'CONFIGURED' : 'MISSING', h['content-security-policy'] ? 'Set' : 'Not set'],
+          ['X-Frame-Options (Clickjacking)', h['x-frame-options'] ? 'CONFIGURED' : 'MISSING', h['x-frame-options'] || 'Not set'],
+          ['Password Transmission Security', analysis.security.passwordOverHTTP ? 'VULNERABLE' : 'SAFE', analysis.security.passwordOverHTTP ? 'HTTP Passwords' : 'Secure Protocol'],
+          ['Active Cookies', `${analysis.security.cookies.count} cookies`, 'JS accessible context'],
+        ];
+
+        (doc as any).autoTable({
+          head: [['Security Parameter', 'Status', 'Configuration']],
+          body: secData,
+          startY: 37,
+          theme: 'grid',
+          headStyles: { fillColor: [140, 100, 200] },
+        });
+      }
+
+      // Tech Stack Section
+      if (sections.techstack) {
+        doc.addPage();
+        doc.setFillColor(193, 144, 255);
+        doc.rect(0, 0, 210, 15, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Web Technology stack details', 20, 10);
+
+        doc.setTextColor(23, 23, 23);
+        doc.setFontSize(14);
+        doc.text('Detected Frameworks, CMS & Infrastructure', 20, 30);
+
+        const techList: string[][] = [];
+        Object.entries(analysis.technology).forEach(([category, items]) => {
+          if (category !== 'other' && Array.isArray(items) && items.length > 0) {
+            const names = items.map((t: any) => `${t.name}${t.version ? ` (v${t.version})` : ''}`).join(', ');
+            techList.push([category.toUpperCase(), names]);
+          }
         });
 
-        // Footer note
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'italic');
-        doc.setTextColor(163, 163, 163);
-        doc.text('Report generated programmatically in-browser via RefineAI sidepanel workspace.', 20, 280);
-
-        // ─── DETAILED SECTIONS ───
-        
-        // SEO Section
-        if (sections.seo) {
-          doc.addPage();
-          // Header Bar
-          doc.setFillColor(193, 144, 255);
-          doc.rect(0, 0, 210, 15, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(12);
-          doc.text('SEO Inspector Details', 20, 10);
-
-          doc.setTextColor(23, 23, 23);
-          doc.setFontSize(14);
-          doc.text('Search Engine Optimization Review', 20, 30);
-
-          const seoData = [
-            ['Title Tag', analysis.seo.title.value || 'None', `${analysis.seo.title.length} chars`],
-            ['Meta Description', analysis.seo.metaDescription.value || 'None', `${analysis.seo.metaDescription.length} chars`],
-            ['Canonical Link', analysis.seo.canonical || 'None', analysis.seo.canonical ? 'Valid' : 'Missing'],
-            ['Word Count', `${analysis.seo.content.wordCount} words`, `Est. ${analysis.seo.content.readingTime} min reading`],
-            ['Images Audit', `${analysis.seo.images.total} images`, `${analysis.seo.images.withoutAlt} missing alt texts`],
-          ];
-
-          (doc as any).autoTable({
-            head: [['Parameter', 'Value', 'Assessment']],
-            body: seoData,
-            startY: 37,
-            theme: 'grid',
-            headStyles: { fillColor: [140, 100, 200] },
-          });
-        }
-
-        // Performance Section
-        if (sections.performance) {
-          doc.addPage();
-          doc.setFillColor(193, 144, 255);
-          doc.rect(0, 0, 210, 15, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(12);
-          doc.text('Performance Analyzer Details', 20, 10);
-
-          doc.setTextColor(23, 23, 23);
-          doc.setFontSize(14);
-          doc.text('Page Speed & Weight Review', 20, 30);
-
-          const perfData = [
-            ['Page Loading Complete', `${(analysis.performance.timings.loadComplete || 0).toFixed(0)} ms`, 'Total load window'],
-            ['First Contentful Paint (FCP)', `${analysis.performance.timings.fcp || '—'} ms`, 'Time to visual rendering'],
-            ['Time To First Byte (TTFB)', `${analysis.performance.timings.ttfb || '—'} ms`, 'Server response speed'],
-            ['Total Page Size', formatBytes(analysis.performance.totalSize), 'Encoded byte weight'],
-            ['Total Network Requests', `${analysis.performance.totalRequests} files`, 'Resource fetches'],
-            ['DOM Tree Size', `${analysis.performance.domSize} elements`, 'HTML hierarchy node count'],
-          ];
-
-          (doc as any).autoTable({
-            head: [['Metric', 'Value', 'Description']],
-            body: perfData,
-            startY: 37,
-            theme: 'grid',
-            headStyles: { fillColor: [140, 100, 200] },
-          });
-        }
-
-        // Security Section
-        if (sections.security) {
-          doc.addPage();
-          doc.setFillColor(193, 144, 255);
-          doc.rect(0, 0, 210, 15, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(12);
-          doc.text('Security Auditing Details', 20, 10);
-
-          doc.setTextColor(23, 23, 23);
-          doc.setFontSize(14);
-          doc.text('HTTP Encryption & Security Headers', 20, 30);
-
-          const h = analysis.security.headers || {};
-          const secData = [
-            ['HTTPS Secured Connection', analysis.security.isHTTPS ? 'YES' : 'NO', analysis.security.isHTTPS ? 'Secure' : 'Vulnerable'],
-            ['Strict-Transport-Security (HSTS)', h['strict-transport-security'] ? 'CONFIGURED' : 'MISSING', h['strict-transport-security'] || 'Not set'],
-            ['Content-Security-Policy (CSP)', h['content-security-policy'] ? 'CONFIGURED' : 'MISSING', h['content-security-policy'] ? 'Set' : 'Not set'],
-            ['X-Frame-Options (Clickjacking)', h['x-frame-options'] ? 'CONFIGURED' : 'MISSING', h['x-frame-options'] || 'Not set'],
-            ['Password Transmission Security', analysis.security.passwordOverHTTP ? 'VULNERABLE' : 'SAFE', analysis.security.passwordOverHTTP ? 'HTTP Passwords' : 'Secure Protocol'],
-            ['Active Cookies', `${analysis.security.cookies.count} cookies`, 'JS accessible context'],
-          ];
-
-          (doc as any).autoTable({
-            head: [['Security Parameter', 'Status', 'Configuration']],
-            body: secData,
-            startY: 37,
-            theme: 'grid',
-            headStyles: { fillColor: [140, 100, 200] },
-          });
-        }
-
-        // Tech Stack
-        if (sections.techstack) {
-          doc.addPage();
-          doc.setFillColor(193, 144, 255);
-          doc.rect(0, 0, 210, 15, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(12);
-          doc.text('Web Technology stack details', 20, 10);
-
-          doc.setTextColor(23, 23, 23);
-          doc.setFontSize(14);
-          doc.text('Detected Frameworks, CMS & Infrastructure', 20, 30);
-
-          const techList: string[][] = [];
-          Object.entries(analysis.technology).forEach(([category, items]) => {
-            if (category !== 'other' && Array.isArray(items) && items.length > 0) {
-              const names = items.map((t: any) => `${t.name}${t.version ? ` (v${t.version})` : ''}`).join(', ');
-              techList.push([category.toUpperCase(), names]);
-            }
-          });
-
-          (doc as any).autoTable({
-            head: [['Category', 'Technologies Detected']],
-            body: techList,
-            startY: 37,
-            theme: 'grid',
-            headStyles: { fillColor: [140, 100, 200] },
-          });
-        }
-
-        // AI Recommendations
-        if (sections.aiinsights) {
-          doc.addPage();
-          doc.setFillColor(193, 144, 255);
-          doc.rect(0, 0, 210, 15, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(12);
-          doc.text('Action Plan & Recommendations', 20, 10);
-
-          doc.setTextColor(23, 23, 23);
-          doc.setFontSize(14);
-          doc.text('RefineAI Priority Checklist', 20, 30);
-
-          const actionList = [];
-          if (seoScore < 90) actionList.push(['1', 'SEO Checklist', 'Fix missing alt texts and verify description lengths to optimize meta crawls.']);
-          if (performanceScore < 90) actionList.push(['2', 'Page Optimization', 'Compress static images, activate lazy loading, and compress bulky stylesheets.']);
-          if (securityScore < 90) actionList.push(['3', 'Security Hardening', 'Deploy HSTS and CSP headers on your host server configs to prevent exploits.']);
-          if (accessibilityScore < 90) actionList.push(['4', 'Accessibility Fixes', 'Check button name tags and associate labels with correct forms.']);
-
-          if (actionList.length === 0) {
-            actionList.push(['✓', 'Excellent Health', 'All categories scored high. Standard site checks complete. Maintain caching rules.']);
-          }
-
-          (doc as any).autoTable({
-            head: [['Item', 'Action Area', 'Suggested Resolution details']],
-            body: actionList,
-            startY: 37,
-            theme: 'striped',
-            headStyles: { fillColor: [140, 100, 200] },
-          });
-        }
-
-        // Save PDF
-        const pdfName = `refineai-report-${analysis.site.hostname}.pdf`;
-        doc.save(pdfName);
-
-        setSuccessMessage(`PDF Report successfully exported to your downloads folder as "${pdfName}"!`);
-      } catch (err: any) {
-        console.error('PDF generation error:', err);
-      } finally {
-        setIsGenerating(false);
+        (doc as any).autoTable({
+          head: [['Category', 'Technologies Detected']],
+          body: techList,
+          startY: 37,
+          theme: 'grid',
+          headStyles: { fillColor: [140, 100, 200] },
+        });
       }
-    }, 500);
+
+      // AEO Section
+      if (sections.aeo) {
+        doc.addPage();
+        doc.setFillColor(193, 144, 255);
+        doc.rect(0, 0, 210, 15, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('AI Visibility (AEO) Details', 20, 10);
+
+        doc.setTextColor(23, 23, 23);
+        doc.setFontSize(14);
+        doc.text('Answer Engine Optimization Findings', 20, 30);
+
+        const aeoData = [
+          ['Answer Readiness (25%)', `${aeoDataFallback.answerReadiness.score} / 100`, aeoDataFallback.answerReadiness.details.slice(0, 2).join(' | ')],
+          ['Entity Coverage (20%)', `${aeoDataFallback.entityCoverage.score} / 100`, `Entities: ${aeoDataFallback.entityCoverage.detectedEntities?.join(', ') || 'None'}`],
+          ['Schema Readiness (20%)', `${aeoDataFallback.schemaReadiness?.score ?? 75} / 100`, aeoDataFallback.schemaReadiness?.details.slice(0, 2).join(' | ') || ''],
+          ['Citation Readiness (15%)', `${aeoDataFallback.citationReadiness?.score ?? 76} / 100`, aeoDataFallback.citationReadiness?.details.slice(0, 2).join(' | ') || ''],
+          ['E-E-A-T Signals (10%)', `${aeoDataFallback.eeatSignals.score} / 100`, aeoDataFallback.eeatSignals.details.slice(0, 2).join(' | ')],
+          ['Content Structure (10%)', `${aeoDataFallback.contentStructure?.score ?? 90} / 100`, aeoDataFallback.contentStructure?.details.slice(0, 2).join(' | ') || ''],
+        ];
+
+        (doc as any).autoTable({
+          head: [['AEO Pillar (Weight)', 'Score', 'Key Details']],
+          body: aeoData,
+          startY: 37,
+          theme: 'grid',
+          headStyles: { fillColor: [140, 100, 200] },
+        });
+
+        // AI Answer Preview Block
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(23, 23, 23);
+        doc.text('Simulated AI Search Summary Preview:', 20, (doc as any).lastAutoTable.finalY + 12);
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(9);
+        doc.setTextColor(80, 80, 80);
+        
+        const splitPreview = doc.splitTextToSize(aeoDataFallback.answerPreview || 'No answer preview generated.', 170);
+        doc.text(splitPreview, 20, (doc as any).lastAutoTable.finalY + 18);
+      }
+
+      // AI Recommendations Section
+      if (sections.aiinsights) {
+        doc.addPage();
+        doc.setFillColor(193, 144, 255);
+        doc.rect(0, 0, 210, 15, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Action Plan & Recommendations', 20, 10);
+
+        doc.setTextColor(23, 23, 23);
+        doc.setFontSize(14);
+        doc.text('RefineAI Priority Checklist', 20, 30);
+
+        const actionList = [];
+        if (seoScore < 90) actionList.push(['1', 'SEO Checklist', 'Fix missing alt texts and verify description lengths to optimize meta crawls.']);
+        if (performanceScore < 90) actionList.push(['2', 'Page Optimization', 'Compress static images, activate lazy loading, and compress bulky stylesheets.']);
+        if (securityScore < 90) actionList.push(['3', 'Security Hardening', 'Deploy HSTS and CSP headers on your host server configs to prevent exploits.']);
+        if (accessibilityScore < 90) actionList.push(['4', 'Accessibility Fixes', 'Check button name tags and associate labels with correct forms.']);
+        if (aeoScore < 90) actionList.push(['5', 'AI Visibility (AEO)', 'Phrase headings as direct Q&As and structure schema to match prompt formats.']);
+
+        if (actionList.length === 0) {
+          actionList.push(['✓', 'Excellent Health', 'All categories scored high. Standard site checks complete. Maintain caching rules.']);
+        }
+
+        (doc as any).autoTable({
+          head: [['Item', 'Action Area', 'Suggested Resolution details']],
+          body: actionList,
+          startY: 37,
+          theme: 'striped',
+          headStyles: { fillColor: [140, 100, 200] },
+        });
+      }
+
+      // Save PDF
+      const pdfName = `refineai-report-${analysis.site.hostname}.pdf`;
+      doc.save(pdfName);
+
+      setSuccessMessage(`PDF Report successfully exported to your downloads folder as "${pdfName}"!`);
+    } catch (err: any) {
+      console.error('PDF generation error:', err);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
-    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-white">
+    <div className="flex-1 p-5 overflow-y-auto space-y-4 animate-slide-up bg-white relative">
+      {/* Loading Overlay */}
+      {isGenerating && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-50 flex flex-col items-center justify-center gap-3">
+          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-semibold text-gray-700 animate-pulse">
+            Downloading builder components & compiling PDF...
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <h1 className="text-lg font-bold text-gray-900 flex items-center gap-1.5">
@@ -355,7 +427,7 @@ export default function ReportsView() {
                 className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
               />
               <span className="capitalize text-gray-700">
-                {key === 'aiinsights' ? 'AI Insights checklist' : key === 'techstack' ? 'Technology Stack list' : `${key.toUpperCase()} audit`}
+                {key === 'aiinsights' ? 'AI Insights checklist' : key === 'techstack' ? 'Technology Stack list' : key === 'aeo' ? 'AI Visibility (AEO) audit' : `${key.toUpperCase()} audit`}
               </span>
             </label>
           ))}

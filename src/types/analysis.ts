@@ -219,6 +219,7 @@ export interface AuditHistoryItem {
     performance: number;
     security: number;
     accessibility: number;
+    aeo?: number;
   };
 }
 
@@ -237,6 +238,17 @@ export interface AccessibilityAnalysis {
   totalIssues: number;
 }
 
+export interface AEOAnalysis {
+  aeoScore: number;
+  answerReadiness: { score: number; details: string[] };
+  entityCoverage: { score: number; details: string[]; detectedEntities: string[] };
+  schemaReadiness: { score: number; details: string[] };
+  citationReadiness: { score: number; details: string[] };
+  eeatSignals: { score: number; details: string[] };
+  contentStructure: { score: number; details: string[] };
+  answerPreview: string;
+}
+
 export interface PageAnalysis {
   site: SiteInfo;
   seo: SEOAnalysis;
@@ -248,6 +260,7 @@ export interface PageAnalysis {
   shopify: ShopifyAnalysis;
   performance: PerformanceAnalysis;
   accessibility: AccessibilityAnalysis;
+  aeo?: AEOAnalysis;
   timestamp: number;
   tabId?: number;
   url?: string;
@@ -263,6 +276,7 @@ export type NavSection =
   | 'accessibility'
   | 'aiinsights'
   | 'actioncenter'
+  | 'aeo'
   | 'competitor'
   | 'reports'
   | 'screenshots'

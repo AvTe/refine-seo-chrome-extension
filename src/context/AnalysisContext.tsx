@@ -66,7 +66,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         seo,
         performance,
         security,
-        accessibility
+        accessibility,
+        aeo: data.aeo?.aeoScore
       }
     };
 
@@ -546,6 +547,64 @@ function getMockAnalysis(): PageAnalysis {
       errorCount: 1,
       warningCount: 2,
       totalIssues: 3,
+    },
+    aeo: {
+      aeoScore: 85,
+      answerReadiness: {
+        score: 92,
+        details: [
+          'Found question heading: "What is WooCommerce?" followed by descriptive paragraph',
+          'Page uses 3 formatted lists, helpful for list item extraction',
+          'Found structured HTML tables displaying relevant product metrics'
+        ]
+      },
+      entityCoverage: {
+        score: 88,
+        details: [
+          'Detected high-density brand/org entity terms',
+          'Keywords map accurately to Wikipedia concepts'
+        ],
+        detectedEntities: ['WordPress', 'WooCommerce', 'Shopify', 'Google', 'OpenAI', 'RefineAI']
+      },
+      schemaReadiness: {
+        score: 75,
+        details: [
+          'JSON-LD Organization schema detected',
+          'JSON-LD FAQPage schema detected',
+          'JSON-LD Article schema detected',
+          'Missing Product/Service schema recommendation',
+          'Missing BreadcrumbList schema'
+        ]
+      },
+      citationReadiness: {
+        score: 76,
+        details: [
+          'Meta author tag found: "RefineAI Team"',
+          'Page links to verified "About Us" and "Contact" subpages',
+          'References 3 high-authority external sources (.org, wikipedia)',
+          'Last updated date timestamp metadata is defined',
+          'Missing explicit publisher organization citation'
+        ]
+      },
+      eeatSignals: {
+        score: 82,
+        details: [
+          'Author bio profile link discovered',
+          'Contact telephone/email information present',
+          'Privacy Policy and Terms of Use linked in footer',
+          'Corporate office physical address not found'
+        ]
+      },
+      contentStructure: {
+        score: 90,
+        details: [
+          'Heading tree hierarchy is properly ordered (H1 -> H2 -> H3)',
+          'Paragraph length is optimal (average of 38 words per section)',
+          'Table of Contents (TOC) page anchor navigation found',
+          'FAQ section blocks are structured'
+        ]
+      },
+      answerPreview: 'WooCommerce is an open-source ecommerce plugin for WordPress. It is designed for small to large-sized online merchants using WordPress. RefineAI integrates directly with WooCommerce stores to optimize catalog indexing, performance metrics, and schema generation.'
     },
     timestamp: Date.now(),
   };

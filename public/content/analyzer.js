@@ -944,6 +944,422 @@
   }
 
   // ============================================================
+  // AEO / AI VISIBILITY AUDIT
+  // ============================================================
+
+  function analyzeAEO() {
+    const detailsAnswer = [];
+    const detailsEntity = [];
+    const detailsSchema = [];
+    const detailsCitation = [];
+    const detailsEeat = [];
+    const detailsStructure = [];
+
+    const bodyText = document.body?.innerText || '';
+    const bodyTextLower = bodyText.toLowerCase();
+
+    // 1. Answer Readiness (25% weight) - Max 100
+    let answerScore = 0;
+    
+    // Check for Question Headings (30 points)
+    const qaRegex = /^(what|how|why|who|when|where|can|is|are|does|do|should|define)\b/i;
+    let hasQuestionHeading = false;
+    let qaHeadingCount = 0;
+    document.querySelectorAll('h1, h2, h3, h4').forEach(h => {
+      const text = h.textContent.trim();
+      if (text.includes('?') || qaRegex.test(text)) {
+        hasQuestionHeading = true;
+        qaHeadingCount++;
+      }
+    });
+    if (hasQuestionHeading) {
+      answerScore += 30;
+      detailsAnswer.push(`Found ${qaHeadingCount} question-based headings, optimized for query matching.`);
+    } else {
+      detailsAnswer.push('No question-formatted headings found. Phrasing headings as queries (e.g. "What is...") matches AI search patterns.');
+    }
+
+    // Check for Definitions (25 points)
+    const definitionRegex = /\b(is a|is the|is defined as|refers to|means the|denotes|is an open-source)\b/i;
+    let hasDefinition = definitionRegex.test(bodyText);
+    if (hasDefinition) {
+      answerScore += 25;
+      detailsAnswer.push('Clear definition statements (e.g. "is a", "refers to") detected in paragraphs.');
+    } else {
+      detailsAnswer.push('No explicit definition syntax found. Use "Entity is X" patterns to help AI identify core concepts.');
+    }
+
+    // Check for Step-by-Step Sections (15 points)
+    let hasSteps = false;
+    document.querySelectorAll('ol, ul').forEach(list => {
+      const parentText = list.previousElementSibling?.textContent?.toLowerCase() || '';
+      if (parentText.includes('step') || parentText.includes('how to') || parentText.includes('guide') || parentText.includes('install') || parentText.includes('setup')) {
+        hasSteps = true;
+      }
+    });
+    if (!hasSteps) {
+      // Check if headers have numbers
+      document.querySelectorAll('h2, h3').forEach(h => {
+        if (/^[0-9]\.\s+/i.test(h.textContent.trim())) {
+          hasSteps = true;
+        }
+      });
+    }
+    if (hasSteps) {
+      answerScore += 15;
+      detailsAnswer.push('Step-by-step guidance sections or numbered headers detected.');
+    } else {
+      detailsAnswer.push('No numbered guides or step-by-step sections found.');
+    }
+
+    // Tables (15 points)
+    const tableCount = document.querySelectorAll('table').length;
+    if (tableCount > 0) {
+      answerScore += 15;
+      detailsAnswer.push(`Found structured tables (${tableCount} found), excellent for direct AI data pulls.`);
+    } else {
+      detailsAnswer.push('No HTML tables found. Use tables for comparative or tabular data to trigger AI summaries.');
+    }
+
+    // Lists (15 points)
+    const listCount = document.querySelectorAll('ul, ol').length;
+    if (listCount > 0) {
+      answerScore += 15;
+      detailsAnswer.push(`Detected HTML lists (${listCount} lists on page), highly extractable for AI bullet answers.`);
+    } else {
+      detailsAnswer.push('No lists found. Group related items in bullet points.');
+    }
+
+    // 2. Entity Coverage (20% weight) - Max 100
+    let entityScore = 0;
+    const commonEntities = ['wordpress', 'woocommerce', 'shopify', 'google', 'openai', 'refineai', 'microsoft', 'apple', 'amazon', 'facebook', 'instagram', 'twitter', 'github', 'wikipedia'];
+    const detectedEntitiesSet = new Set();
+    
+    // Simple scan
+    commonEntities.forEach(ent => {
+      if (bodyTextLower.includes(ent)) {
+        detectedEntitiesSet.add(ent.charAt(0).toUpperCase() + ent.slice(1));
+      }
+    });
+
+    // Extract other capitalized words that look like entities
+    const properNounRegex = /\b[A-Z][a-z]{3,15}\b/g;
+    const properNouns = bodyText.match(properNounRegex) || [];
+    const entityIgnore = new Set(['The', 'This', 'That', 'With', 'From', 'Their', 'They', 'Here', 'Then', 'When', 'Where', 'What', 'About', 'Contact', 'Home', 'Blog', 'Shop', 'Privacy', 'Terms', 'More', 'Read', 'Page']);
+    properNouns.forEach(noun => {
+      if (!entityIgnore.has(noun) && detectedEntitiesSet.size < 12) {
+        detectedEntitiesSet.add(noun);
+      }
+    });
+
+    const detectedEntities = Array.from(detectedEntitiesSet);
+    if (detectedEntities.length > 0) {
+      entityScore = Math.min(100, detectedEntities.length * 20);
+      detailsEntity.push(`Extracted ${detectedEntities.length} key semantic entities.`);
+    } else {
+      detailsEntity.push('No prominent semantic entities detected in body text.');
+    }
+
+    const boldCount = document.querySelectorAll('strong, b').length;
+    if (boldCount > 3) {
+      entityScore = Math.min(100, entityScore + 10);
+      detailsEntity.push(`Used bold tags on ${boldCount} terms to emphasize key concept entities.`);
+    } else {
+      detailsEntity.push('Highlight key entities with bold formatting tags.');
+    }
+
+    // 3. Schema Readiness (20% weight) - Max 100
+    let schemaScore = 0;
+    const schemasFound = [];
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(el => {
+      try {
+        const data = JSON.parse(el.textContent);
+        const items = Array.isArray(data) ? data : [data];
+        items.forEach(item => {
+          if (item['@graph']) {
+            item['@graph'].forEach(g => { if (g['@type']) schemasFound.push(g['@type'].toLowerCase()); });
+          } else if (item['@type']) {
+            schemasFound.push(item['@type'].toLowerCase());
+          }
+        });
+      } catch (e) { /* ignore */ }
+    });
+
+    const schemaTargets = [
+      { type: 'organization', points: 20, label: 'Organization' },
+      { type: 'faqpage', points: 20, label: 'FAQPage' },
+      { type: 'product', points: 20, label: 'Product' },
+      { type: 'article', points: 20, label: 'Article / BlogPosting' },
+      { type: 'breadcrumblist', points: 20, label: 'BreadcrumbList' }
+    ];
+
+    schemaTargets.forEach(tgt => {
+      const hasMatch = schemasFound.some(sf => sf.includes(tgt.type));
+      if (hasMatch) {
+        schemaScore += tgt.points;
+        detailsSchema.push(`Detected schema type: ${tgt.label}`);
+      } else {
+        detailsSchema.push(`Missing schema type: ${tgt.label}`);
+      }
+    });
+
+    if (document.querySelector('[itemscope]')) {
+      schemaScore = Math.min(100, schemaScore + 10);
+      detailsSchema.push('Found HTML microdata items alongside JSON-LD.');
+    }
+
+    // 4. Citation Readiness (15% weight) - Max 100
+    let citationScore = 0;
+
+    // Author tag (20 pts)
+    const authorMeta = document.querySelector('meta[name="author"]') || document.querySelector('[itemprop="author"]');
+    const hasAuthorInSchema = schemasFound.some(sf => sf.includes('person') || sf.includes('author'));
+    if (authorMeta || hasAuthorInSchema) {
+      citationScore += 20;
+      detailsCitation.push('Author attribution is defined (meta author or author schema).');
+    } else {
+      detailsCitation.push('Missing explicit author attribution (e.g. meta name="author" tag).');
+    }
+
+    // About page link (20 pts)
+    let hasAbout = false;
+    document.querySelectorAll('a[href]').forEach(el => {
+      const href = el.getAttribute('href').toLowerCase();
+      const text = el.textContent.toLowerCase();
+      if (href.includes('about') || text.includes('about us') || text.includes('who we are')) {
+        hasAbout = true;
+      }
+    });
+    if (hasAbout) {
+      citationScore += 20;
+      detailsCitation.push('Page links to a verified "About" or brand profile page.');
+    } else {
+      detailsCitation.push('No link to an "About Us" page detected.');
+    }
+
+    // Contact page link (20 pts)
+    let hasContact = false;
+    document.querySelectorAll('a[href]').forEach(el => {
+      const href = el.getAttribute('href').toLowerCase();
+      const text = el.textContent.toLowerCase();
+      if (href.includes('contact') || text.includes('contact us') || text.includes('get in touch')) {
+        hasContact = true;
+      }
+    });
+    if (hasContact) {
+      citationScore += 20;
+      detailsCitation.push('Page links to a verified "Contact" page.');
+    } else {
+      detailsCitation.push('No link to a "Contact" page detected.');
+    }
+
+    // External sources / references (20 pts)
+    const currentHost = window.location.hostname;
+    let externalRefs = 0;
+    document.querySelectorAll('a[href]').forEach(el => {
+      const href = el.getAttribute('href') || '';
+      try {
+        const url = new URL(href, window.location.origin);
+        if (url.hostname !== currentHost && url.protocol.startsWith('http')) {
+          const host = url.hostname.toLowerCase();
+          if (host.endsWith('.gov') || host.endsWith('.edu') || host.endsWith('.org') || host.includes('wikipedia') || host.includes('arxiv') || host.includes('doi')) {
+            externalRefs++;
+          }
+        }
+      } catch { /* ignore */ }
+    });
+    if (externalRefs > 0) {
+      citationScore += 20;
+      detailsCitation.push(`References ${externalRefs} high-authority source link(s) (.gov, .edu, Wikipedia).`);
+    } else {
+      detailsCitation.push('No high-authority external sources cited in outbound links.');
+    }
+
+    // Last updated date (20 pts)
+    const hasDateMeta = document.querySelector('time') !== null || document.querySelector('[class*="date"], [id*="date"], [property*="date"], [itemprop*="date"]') !== null;
+    if (hasDateMeta) {
+      citationScore += 20;
+      detailsCitation.push('Temporal fresh signals found (publish or update timestamps).');
+    } else {
+      detailsCitation.push('No last updated timestamp found.');
+    }
+
+    // 5. E-E-A-T Signals (10% weight) - Max 100
+    let eeatScore = 0;
+
+    // Author Profile link (20 pts)
+    const authorProfileLink = document.querySelector('a[href*="/author/"], a[href*="/profile/"], [class*="author-link"]');
+    if (authorProfileLink) {
+      eeatScore += 20;
+      detailsEeat.push('Links to an author credentials or profile page.');
+    } else {
+      detailsEeat.push('No link to an author profile page found.');
+    }
+
+    // Company Information (20 pts)
+    const companyKeywords = /\b(inc\.|llc|corp\.|corporation|ltd\.|limited|co\.)\b/i;
+    if (companyKeywords.test(bodyText)) {
+      eeatScore += 20;
+      detailsEeat.push('Company registration details (LLC, Inc, Corp, Ltd) identified in text.');
+    } else {
+      detailsEeat.push('No company registration details detected in body.');
+    }
+
+    // Address (20 pts)
+    const addressKeywords = /\b(st\.|street|ave\.|avenue|rd\.|road|suite|building|floor|po box)\b/i;
+    const hasZip = /\b\d{5}(-\d{4})?\b/.test(bodyText) || /\b[A-Z]\d[A-Z] \d[A-Z]\d\b/i.test(bodyText); // US or Canadian ZIP
+    if (addressKeywords.test(bodyText) || hasZip) {
+      eeatScore += 20;
+      detailsEeat.push('Physical mailing address signals detected in text.');
+    } else {
+      detailsEeat.push('No physical mailing address or ZIP code found in footer/body.');
+    }
+
+    // Social Profiles (20 pts)
+    let socialCount = 0;
+    document.querySelectorAll('a[href]').forEach(el => {
+      const href = el.getAttribute('href').toLowerCase();
+      if (href.includes('twitter.com') || href.includes('x.com') || href.includes('facebook.com') || href.includes('linkedin.com') || href.includes('instagram.com') || href.includes('youtube.com')) {
+        socialCount++;
+      }
+    });
+    if (socialCount > 0) {
+      eeatScore += 20;
+      detailsEeat.push(`Linked ${socialCount} social media profile channels.`);
+    } else {
+      detailsEeat.push('No social media profile links (LinkedIn, X, Facebook) detected.');
+    }
+
+    // Privacy & Terms Policies (20 pts)
+    let policyCount = 0;
+    document.querySelectorAll('a[href]').forEach(el => {
+      const text = el.textContent.toLowerCase();
+      if (text.includes('privacy policy') || text.includes('terms of service') || text.includes('terms of use')) {
+        policyCount++;
+      }
+    });
+    if (policyCount > 0) {
+      eeatScore += 20;
+      detailsEeat.push('Verified links to Privacy Policy and/or Terms of Service agreements.');
+    } else {
+      detailsEeat.push('No links to Privacy Policy or Terms of Service found.');
+    }
+
+    // 6. Content Structure (10% weight) - Max 100
+    let structureScore = 0;
+
+    // Heading Tree Order (30 pts)
+    let headingSkips = 0;
+    let prevLevel = 0;
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      const level = parseInt(h.tagName.charAt(1));
+      if (prevLevel > 0 && level > prevLevel + 1) {
+        headingSkips++;
+      }
+      prevLevel = level;
+    });
+    if (prevLevel === 0) {
+      detailsStructure.push('No headings found on the page.');
+    } else if (headingSkips === 0) {
+      structureScore += 30;
+      detailsStructure.push('Heading tree hierarchy has perfect nesting order.');
+    } else {
+      structureScore += 10;
+      detailsStructure.push(`Detected ${headingSkips} heading level skip(s) (e.g. H1 directly to H3).`);
+    }
+
+    // FAQ Blocks (20 pts)
+    const faqBlocks = document.querySelectorAll('[class*="faq"], [id*="faq"]').length;
+    const questionMarks = (bodyText.match(/\?/g) || []).length;
+    if (faqBlocks > 0 || questionMarks > 3) {
+      structureScore += 20;
+      detailsStructure.push('Page contains structural FAQ blocks or multiple question format patterns.');
+    } else {
+      detailsStructure.push('No styled FAQ blocks or high density of questions found.');
+    }
+
+    // Short Paragraphs (25 pts)
+    let longParagraphs = 0;
+    let paragraphCount = 0;
+    document.querySelectorAll('p').forEach(p => {
+      paragraphCount++;
+      const wordCount = p.textContent.trim().split(/\s+/).filter(w => w.length > 0).length;
+      if (wordCount > 60) {
+        longParagraphs++;
+      }
+    });
+    if (paragraphCount > 0 && (longParagraphs / paragraphCount) < 0.25) {
+      structureScore += 25;
+      detailsStructure.push('Paragraphs are short and highly scannable (under 60 words average).');
+    } else if (paragraphCount > 0) {
+      structureScore += 10;
+      detailsStructure.push(`Found ${longParagraphs} long paragraph(s) containing over 60 words.`);
+    } else {
+      detailsStructure.push('No paragraph tags (<p>) found on the page.');
+    }
+
+    // Definition Sections (15 pts)
+    const hasDfn = document.querySelectorAll('dfn').length > 0;
+    const hasDefinitionList = document.querySelectorAll('dl, dt, dd').length > 0;
+    if (hasDfn || hasDefinitionList || hasDefinition) {
+      structureScore += 15;
+      detailsStructure.push('Uses definition markup (<dfn>, <dl>) or clear inline glossary terms.');
+    } else {
+      detailsStructure.push('No structured definitions found. Use glossaries or <dfn> tags for entity clarity.');
+    }
+
+    // Table of Contents (10 pts)
+    const hasTOC = document.querySelector('[class*="toc"], [id*="toc"], [class*="table-of-contents"], [id*="table-of-contents"]') !== null;
+    if (hasTOC) {
+      structureScore += 10;
+      detailsStructure.push('Table of Contents (TOC) index detected, easing deep page indexing.');
+    } else {
+      detailsStructure.push('No Table of Contents (TOC) element found.');
+    }
+
+    // Combine Weighted Score
+    // Answer Readiness: 25%
+    // Entity Coverage: 20%
+    // Schema Readiness: 20%
+    // Citation Readiness: 15%
+    // EEAT Signals: 10%
+    // Content Structure: 10%
+    const aeoScore = Math.round(
+      (answerScore * 0.25) +
+      (entityScore * 0.20) +
+      (schemaScore * 0.20) +
+      (citationScore * 0.15) +
+      (eeatScore * 0.10) +
+      (structureScore * 0.10)
+    );
+
+    // AI Answer Preview Synthesis
+    let answerPreview = '';
+    const h1El = document.querySelector('h1');
+    const firstParagraph = document.querySelector('p');
+    if (h1El && firstParagraph && firstParagraph.textContent.trim().length > 20) {
+      const titleClean = h1El.textContent.trim();
+      const paraClean = firstParagraph.textContent.trim().split('.').slice(0, 2).join('.') + '.';
+      answerPreview = `Based on the page structure, ChatGPT or Gemini might summarize: "${titleClean} is highlighted as follows. ${paraClean}"`;
+    } else {
+      const docTitle = document.title || 'Target Website';
+      const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+      answerPreview = `Based on the page meta definitions, ChatGPT or Gemini might summarize: "${docTitle}. ${metaDesc}"`;
+    }
+
+    return {
+      aeoScore,
+      answerReadiness: { score: answerScore, details: detailsAnswer },
+      entityCoverage: { score: entityScore, details: detailsEntity, detectedEntities },
+      schemaReadiness: { score: schemaScore, details: detailsSchema },
+      citationReadiness: { score: citationScore, details: detailsCitation },
+      eeatSignals: { score: eeatScore, details: detailsEeat },
+      contentStructure: { score: structureScore, details: detailsStructure },
+      answerPreview
+    };
+  }
+
+  // ============================================================
   // SITE INFO
   // ============================================================
 
@@ -973,6 +1389,7 @@
         shopify: analyzeShopify(),
         performance: analyzePerformance(),
         accessibility: analyzeAccessibility(),
+        aeo: analyzeAEO(),
         timestamp: Date.now()
       };
 

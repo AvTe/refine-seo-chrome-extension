@@ -14,6 +14,7 @@ import AIActionCenter from '@/components/AIInsights/AIActionCenter';
 import CompetitorView from '@/components/Competitor/CompetitorView';
 import ReportsView from '@/components/Reports/ReportsView';
 import ScreenshotsView from '@/components/Screenshots/ScreenshotsView';
+import AEOAuditView from '@/components/AEO/AEOAuditView';
 import { Menu, RefreshCw } from 'lucide-react';
 
 function AppContent() {
@@ -47,6 +48,7 @@ function AppContent() {
     accessibility: <AccessibilityView />,
     aiinsights: <AIInsightsView />,
     actioncenter: <AIActionCenter />,
+    aeo: <AEOAuditView />,
     competitor: <CompetitorView />,
     reports: <ReportsView />,
     screenshots: <ScreenshotsView />,

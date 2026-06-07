@@ -11,6 +11,7 @@ import {
   X,
   Sparkles,
   Wand2,
+  Brain,
   GitCompare,
   FileText,
   Camera,
@@ -33,6 +34,7 @@ export default function Sidebar() {
   const navItems: NavItem[] = [
     { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={16} /> },
     { id: 'seo', label: 'SEO', icon: <Search size={16} /> },
+    { id: 'aeo', label: 'AEO Audit', icon: <Brain size={16} /> },
     { id: 'performance', label: 'Performance', icon: <Gauge size={16} /> },
     { id: 'security', label: 'Security', icon: <Shield size={16} /> },
     { id: 'wordpress', label: cmsLabel, icon: <Globe size={16} /> },
